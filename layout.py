@@ -215,6 +215,13 @@ class MemeAssetLayout:
             self.asset_hflip_checker.layout.visibility = 'hidden'
             self.asset_vflip_checker.layout.visibility = 'hidden'
             self.done_btn.layout.visibility = 'hidden'
+
+        H, W, _ = self.img.shape
+        self.asset_horizontal_slider.min = -H //2 
+        self.asset_horizontal_slider.max = H // 2
+        self.asset_vertical_slider.min = -W // 2
+        self.asset_vertical_slider.max = W // 2
+
         with self.edit_canvas:
             if change['new'] is not None and self.face_choice != -1 and self.img is not None:
                 self.asset_choice = change['new']
@@ -500,6 +507,13 @@ class AddGlassesLayout:
             self.asset_hflip_checker.layout.visibility = 'hidden'
             self.asset_vflip_checker.layout.visibility = 'hidden'
             self.done_btn.layout.visibility = 'hidden'
+
+        H, W, _ = self.img.shape
+        self.asset_horizontal_slider.min = -H // 2
+        self.asset_horizontal_slider.max = H // 2
+        self.asset_vertical_slider.min = -W // 2
+        self.asset_vertical_slider.max = W // 2
+        
         with self.edit_canvas:
             if change['new'] is not None and self.eyes_choice != -1 and self.img is not None:
                 self.asset_choice = change['new']
@@ -668,7 +682,6 @@ class AddHatLayout:
             indent = False
         )
 
-
         self.asset_scale_slider.layout.visibility = 'hidden'
         self.asset_scale_slider.observe(self.asset_scale_handler, names = 'value')
         
@@ -711,7 +724,6 @@ class AddHatLayout:
 
         for btn in self.btns:
             btn.on_click(self.done_filter_btn_handler)
-
 
         self.choose_asset_dropdown = widgets.Dropdown(options = [(str(i+1), i) for i in range(len(cfg.eye_assets))], value = None)
         self.choose_asset_dropdown.observe(self.choose_asset_dropdown_handler, names = 'value')
@@ -787,6 +799,13 @@ class AddHatLayout:
             self.asset_hflip_checker.layout.visibility = 'hidden'
             self.asset_vflip_checker.layout.visibility = 'hidden'
             self.done_btn.layout.visibility = 'hidden'
+
+        H, W, _ = self.img.shape
+        self.asset_horizontal_slider.min = -H // 2
+        self.asset_horizontal_slider.max = H // 2
+        self.asset_vertical_slider.min = -W // 2
+        self.asset_vertical_slider.max = W // 2
+        
         with self.edit_canvas:
             if change['new'] is not None and self.eyes_choice != -1 and self.img is not None:
                 self.asset_choice = change['new']

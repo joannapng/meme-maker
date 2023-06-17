@@ -61,26 +61,34 @@ def overlay_image(img, asset, x, y, w, h, flip_x, flip_y):
     new_dims = (int(asset.shape[1] * scale), int(asset.shape[0] * scale))
 
     asset = cv2.resize(asset, new_dims)
+    
+    # must flip before any other process
+    if flip_x:
+        asset = np.fliplr(asset)
+
+    if flip_y:
+        asset = np.flipud(asset)
+
     new_asset = add_padding((h, w), asset)
 
     img_crop = img[int(max(y1, 0)):int(min(y2, H)), int(max(x1, 0)):int(min(x2, W)), :]
 
+    # if asset out of frame
+    if y2 < 0 or x2 < 0:
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        return img
+    
     new_asset = crop_asset(new_asset, x1, x2, y1, y2, h, w, H, W)
-
-    if flip_x:
-        new_asset = np.fliplr(new_asset)
-
-    if flip_y:
-        new_asset = np.flipud(new_asset)
+    
 
     alpha = new_asset[:, :, 3]
     alpha = cv2.merge([alpha, alpha, alpha])
     
     front = new_asset[:, :, 0:3]
     result = np.where(alpha == (0, 0, 0), img_crop, front) 
+    
     img[max(y1, 0):min(y2, H), max(x1, 0):min(x2, W), :] = result
     new_image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    plt.imshow(new_image)
 
     return new_image
     
