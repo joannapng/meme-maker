@@ -937,6 +937,9 @@ class SaveImageLayout:
         self.editor = editor # editor is the last tab that has edited the picture
         self.img = self.editor.img
 
+        # Preview
+        self.preview = widgets.Output()
+
         # Text 
         self.filename = widgets.Text(
             value = '',
@@ -945,6 +948,7 @@ class SaveImageLayout:
             disabled = False
         )
 
+        # save button
         self.save_btn = widgets.Button(
             value = False, 
             description = 'Save', 
@@ -959,10 +963,14 @@ class SaveImageLayout:
         for btn in self.btns:
             btn.on_click(self.done_btn_handler)
 
-        self.layout = widgets.VBox(children=[self.filename, self.save_btn])
+        self.layout = widgets.VBox(children=[self.preview, self.filename, self.save_btn])
 
     def done_btn_handler(self, btn):
         self.img = self.editor.img
+        with self.preview:
+            img_plot = plt.imshow(self.img)
+            img_plot = plt.axis('off')
+            plt.show()
 
     def save_btn_handler(self, btn):
         self.path = self.filename.value

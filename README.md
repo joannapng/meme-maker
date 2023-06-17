@@ -40,4 +40,4 @@ Open jupyter notebook in the project_env environment and choose the project_env 
 TODO
 - Make the slider limits depend on the image size
 - Add preview to save image page
-- Add undo button to filters
+- Add comments to image processing stuff
