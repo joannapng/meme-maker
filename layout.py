@@ -18,7 +18,7 @@ class MemeAssetLayout:
     def __init__(self, uploader, filters):
         self.uploader = uploader # Upload file tab
         self.filters = filters # Filters tab
-        self.img = self.uploader.uploaded_image
+        self.img = None
         self.tmp_img = None # img before committing changes
         self.face_choice = -1 # which face to add asset to
         self.asset_choice = -1 # which asset to add
@@ -117,7 +117,7 @@ class MemeAssetLayout:
             btn.on_click(self.done_filter_btn_handler)
 
         # choose asset
-        self.choose_asset_dropdown = widgets.Dropdown(options = [(str(i+1), i) for i in range(len(cfg.meme_face_assets))])
+        self.choose_asset_dropdown = widgets.Dropdown(options = [(str(i+1), i) for i in range(len(cfg.meme_face_assets))], value = None)
         self.choose_asset_dropdown.observe(self.choose_asset_dropdown_handler, names = 'value')
         self.choose_asset_layout = widgets.VBox(children=[self.choose_asset_dropdown, self.assets])
         self.choose_asset_accordion = widgets.Accordion(children=[self.choose_asset_layout], titles = ['Choose meme asset'])
@@ -133,25 +133,27 @@ class MemeAssetLayout:
     def new_img_output_handler(self, change):
         self.uploaded_file = self.uploader.uploader.value[0]
         self.uploaded_file_type = self.uploaded_file['type']
-        self.img = self.uploader.uploaded_image
-        for output in self.outputs:
-            with output:
-                # if valid img
-                if self.uploader.uploaded_image is not None and self.uploaded_file_type in cfg.supported_types_list:
+
+        if self.uploader.uploaded_image is not None  and self.uploaded_file_type in cfg.supported_types_list:
+            self.img = self.uploader.uploaded_image
+        
+            for output in self.outputs:
+                with output:
                     output.clear_output(wait=True)
                     self.img_w_boxes, self.detections = face_detection(self.uploader.uploaded_image)
                     self.num_detections = len(self.detections)
                     self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
                     img_plot = plt.imshow(self.img_w_boxes)
                     img_plot = plt.axis('off')
-                    plt.show()
-                else:
-                    self.img = None
-                    output.clear_output(wait=False)
-                    self.asset_scale_slider.layout.visibility = 'hidden'
-                    self.asset_horizontal_slider.layout.visibility = 'hidden'
-                    self.asset_vertical_slider.layout.visibility = 'hidden'
-                    self.done_btn.layout.visibility = 'hidden'
+                    plt.show()            
+
+        self.edit_canvas.clear_output(wait=False)
+        self.asset_scale_slider.layout.visibility = 'hidden'
+        self.asset_horizontal_slider.layout.visibility = 'hidden'
+        self.asset_vertical_slider.layout.visibility = 'hidden'
+        self.done_btn.layout.visibility = 'hidden'
+        self.choose_face_dropdown.value = None
+        self.choose_asset_dropdown.value = None
 
     # when done button from filters tab is pressed, update img
     def done_filter_btn_handler(self, btn):
@@ -165,6 +167,7 @@ class MemeAssetLayout:
             img_plot = plt.axis('off')
             plt.show()
 
+    # choose face to add asset to from the dropdown
     def choose_face_dropdown_handler(self, change):
         with self.edit_canvas:
             self.edit_canvas.clear_output(wait=True)
@@ -174,6 +177,7 @@ class MemeAssetLayout:
                 img_plot = plt.axis('off')
                 plt.show()
 
+    # chosse asset from the dropdown 
     def choose_asset_dropdown_handler(self, change):
         if self.img is not None:
             self.asset_scale_slider.layout.visibility = 'visible'
@@ -238,10 +242,9 @@ class MemeAssetLayout:
 
 class AddGlassesLayout:
     def __init__(self, uploader, filters):
-        self.uploader = uploader = uploader 
+        self.uploader = uploader
         self.filters = filters
         self.img = self.uploader.uploaded_image
-        self.new_img = self.img
         self.tmp_img = None
         self.eyes_choice = -1
         self.asset_choice = -1
@@ -334,7 +337,7 @@ class AddGlassesLayout:
             btn.on_click(self.done_filter_btn_handler)
 
 
-        self.choose_asset_dropdown = widgets.Dropdown(options = [(str(i+1), i) for i in range(len(cfg.eye_assets))])
+        self.choose_asset_dropdown = widgets.Dropdown(options = [(str(i+1), i) for i in range(len(cfg.eye_assets))], value = None)
         self.choose_asset_dropdown.observe(self.choose_asset_dropdown_handler, names = 'value')
         self.choose_asset_layout = widgets.VBox(children=[self.choose_asset_dropdown, self.assets])
         self.choose_asset_accordion = widgets.Accordion(children=[self.choose_asset_layout], titles = ['Choose meme asset'])
@@ -348,7 +351,7 @@ class AddGlassesLayout:
     def new_img_output_handler(self, change):
         self.uploaded_file = self.uploader.uploader.value[0]
         self.uploaded_file_type = self.uploaded_file['type']
-        self.img = self.new_img = self.uploader.uploaded_image
+        self.img = self.uploader.uploaded_image
         for output in self.outputs:
             with output:
                 if self.uploader.uploaded_image is not None and self.uploaded_file_type in cfg.supported_types_list:
@@ -360,7 +363,7 @@ class AddGlassesLayout:
                     img_plot = plt.axis('off')
                     plt.show()
                 else:
-                    self.img = self.new_img = None
+                    self.img = None
                     output.clear_output(wait=False)
                     self.asset_scale_slider.layout.visibility = 'hidden'
                     self.asset_horizontal_slider.layout.visibility = 'hidden'
@@ -369,8 +372,7 @@ class AddGlassesLayout:
 
 
     def done_filter_btn_handler(self, btn):
-        self.new_img = self.filters.tmp_img
-        self.img = self.new_img 
+        self.img = self.filters.tmp_img
         with self.detection_output:
             self.detection_output.clear_output(wait=True)
             self.img_w_boxes, self.detections = eyes_detection(self.img)
@@ -412,8 +414,7 @@ class AddGlassesLayout:
         
     def done_btn_handler(self, btn):
         if self.tmp_img is not None:
-            self.new_img = self.tmp_img
-            self.img = self.new_img
+            self.img = self.tmp_img
 
     def asset_scale_handler(self, change):
         self.asset_scale = change['new']
@@ -456,7 +457,6 @@ class AddHatLayout:
         self.uploader = uploader = uploader 
         self.filters = filters
         self.img = self.uploader.uploaded_image
-        self.new_img = self.img
         self.tmp_img = None
         self.eyes_choice = -1
         self.asset_choice = -1
@@ -549,7 +549,7 @@ class AddHatLayout:
             btn.on_click(self.done_filter_btn_handler)
 
 
-        self.choose_asset_dropdown = widgets.Dropdown(options = [(str(i+1), i) for i in range(len(cfg.eye_assets))])
+        self.choose_asset_dropdown = widgets.Dropdown(options = [(str(i+1), i) for i in range(len(cfg.eye_assets))], value = None)
         self.choose_asset_dropdown.observe(self.choose_asset_dropdown_handler, names = 'value')
         self.choose_asset_layout = widgets.VBox(children=[self.choose_asset_dropdown, self.assets])
         self.choose_asset_accordion = widgets.Accordion(children=[self.choose_asset_layout], titles = ['Choose meme asset'])
@@ -563,7 +563,7 @@ class AddHatLayout:
     def new_img_output_handler(self, change):
         self.uploaded_file = self.uploader.uploader.value[0]
         self.uploaded_file_type = self.uploaded_file['type']
-        self.img = self.new_img = self.uploader.uploaded_image
+        self.img = self.uploader.uploaded_image
         for output in self.outputs:
             with output:
                 if self.uploader.uploaded_image is not None and self.uploaded_file_type in cfg.supported_types_list:
@@ -575,7 +575,7 @@ class AddHatLayout:
                     img_plot = plt.axis('off')
                     plt.show()
                 else:
-                    self.img = self.new_img = None
+                    self.img = None
                     output.clear_output(wait=False)
                     self.asset_scale_slider.layout.visibility = 'hidden'
                     self.asset_horizontal_slider.layout.visibility = 'hidden'
@@ -584,8 +584,7 @@ class AddHatLayout:
 
 
     def done_filter_btn_handler(self, btn):
-        self.new_img = self.filters.tmp_img
-        self.img = self.new_img 
+        self.img = self.filters.tmp_img
         with self.detection_output:
             self.detection_output.clear_output(wait=True)
             self.img_w_boxes, self.detections = face_detection(self.img)
@@ -627,8 +626,7 @@ class AddHatLayout:
         
     def done_btn_handler(self, btn):
         if self.tmp_img is not None:
-            self.new_img = self.tmp_img
-            self.img = self.new_img
+            self.img = self.tmp_img
 
     def asset_scale_handler(self, change):
         self.asset_scale = change['new']
@@ -671,8 +669,6 @@ class MemeMakerLayout:
         self.uploader = uploader
         self.filters = filters
         self.img = self.uploader.uploaded_image
-        self.new_img = self.img 
-
         self.uploader.uploader.observe(self.new_img_output_handler, names = 'value')
         self.meme_assets_layout = MemeAssetLayout(self.uploader, self.filters)
         self.add_glasses_layout = AddGlassesLayout(self.uploader, self.filters)
@@ -701,247 +697,19 @@ class MemeMakerLayout:
     def new_img_output_handler(self, change):
         self.uploaded_file = self.uploader.uploader.value[0]
         self.uploaded_file_type = self.uploaded_file['type']
-        self.img = self.new_img = self.uploader.uploaded_image
+        self.img = self.uploader.uploaded_image
 
     def done_filter_btn_handler(self, btn):
-        self.new_img = self.filters.tmp_img
-        self.img = self.new_img
+        self.img = self.filters.tmp_img
 
     def done_meme_asset_btn_handler(self, btn):
-        self.new_img = self.meme_assets_layout.tmp_img
-        self.img = self.new_img
+        self.img = self.meme_assets_layout.tmp_img
     
     def done_glasses_btn_handler(self, btn):
-        self.new_img = self.add_glasses_layout.tmp_img
-        self.img = self.new_img
+        self.img = self.add_glasses_layout.tmp_img
 
     def done_hat_btn_handler(self, btn):
-        self.new_img = self.add_hat_layout.tmp_img
-        self.img = self.new_img
-        
-
-
-
-class GeometryAssetsLayout:
-    def __init__(self, uploader, filters, face_assets):
-        self.uploader = uploader
-        self.filters = filters
-        self.face_assets = face_assets
-        self.img = self.uploader.uploaded_image
-        self.new_img = self.img
-        self.tmp_img = None
-        self.geometry_choice = -1
-        self.asset_choice = -1
-        self.asset_scale = 1
-        self.offset_y = 0
-        self.offset_x = 0
-        self.flip_x = 0
-        self.flip_y = 0
-
-        self.done_btn = widgets.Button(
-            value = False,
-            description = 'Done',
-            disabled = False,
-            button_style = 'Success',
-            icon = 'check'
-        )
-
-        self.asset_scale_slider = widgets.FloatSlider(
-            value = 1, 
-            min = 0.1,
-            max = 10,
-            step = 0.1,
-            description = 'Asset Scale',
-            disabled = False,
-            continuous_update = False,
-            orientation = 'horizontal',
-            readout = True,
-            readout_format = '.1f'
-        )
-
-        self.asset_horizontal_slider = widgets.IntSlider(
-            value=0,
-            min=-128,
-            max=128,
-            step=1,
-            description='Horizontal shift',
-            disabled=False,
-            continuous_update=False,
-            orientation='horizontal',
-            readout=False
-        )
-
-        self.asset_vertical_slider = widgets.IntSlider(
-            value = 0, 
-            min = -128, 
-            max = 128, 
-            step = 1, 
-            description = 'Vertical shift',
-            disabled = False, 
-            continuous_update = False,
-            orientation = 'horizontal',
-            readout = False
-        )
-
-        self.asset_scale_slider.layout.visibility = 'hidden'
-        self.asset_scale_slider.observe(self.asset_scale_handler, names = 'value')
-        
-        self.asset_horizontal_slider.layout.visibility = 'hidden'
-        self.asset_horizontal_slider.observe(self.asset_horizontal_slider_handler, names = 'value')
-
-        self.asset_vertical_slider.layout.visibility = 'hidden'
-        self.asset_vertical_slider.observe(self.asset_vertical_slider_handler, names = 'value')
-
-        self.done_btn.layout.visibility = 'hidden'
-        self.done_btn.on_click(self.done_btn_handler)
-
-        self.detection_output = widgets.Output()
-        self.outputs = [self.detection_output]
-
-        self.uploader.uploader.observe(self.new_img_output_handler, names = 'value')        
-        
-        self.btns = []
-        for btn in self.filters.done_btns:
-            self.btns.append(btn)
-
-        for btn in self.face_assets.done_btns:
-            self.btns.append(btn)
-
-        self.detections = ()
-        self.choose_geometry_dropdown = widgets.Dropdown(options = [])
-        self.choose_geometry_accordion = widgets.Accordion(children=[self.choose_geometry_dropdown], titles=['Choose geometry to add meme asset'])
-        self.choose_geometry_dropdown.observe(self.choose_geometry_dropdown_handler, names = 'value')
-        self.assets = GridspecLayout(2, 2)
-
-        for i, asset in enumerate(cfg.geometry_assets):
-            self.assets[i//2, i%2] = widgets.VBox(children=[widgets.Label(value=str(i+1)), widgets.Output()])
-            with self.assets[i//2, i%2].children[-1]:
-                loaded_img = imageio.imread(asset)
-                img_plot = plt.imshow(loaded_img)
-                img_plot = plt.axis('off')
-                plt.show()
-
-        for btn in self.btns:
-            btn.on_click(self.done_filter_btn_handler)
-
-        self.choose_asset_dropdown = widgets.Dropdown(options = [(str(i+1), i) for i in range(len(cfg.geometry_assets))])
-        self.choose_asset_dropdown.observe(self.choose_asset_dropdown_handler, names = 'value')
-        self.choose_asset_layout = widgets.VBox(children=[self.choose_asset_dropdown, self.assets])
-        self.choose_asset_accordion = widgets.Accordion(children=[self.choose_asset_layout], titles = ['Choose asset to add'])
-        self.selections = widgets.VBox(children=[self.choose_geometry_accordion, self.choose_asset_accordion])
-        
-        self.edit_canvas = widgets.Output()
-        self.edit_tools_layout = widgets.VBox(children=[self.asset_scale_slider, self.asset_horizontal_slider, self.asset_vertical_slider, self.done_btn])
-        self.edit_canvas_layout = widgets.HBox(children=[self.edit_canvas, self.edit_tools_layout])
-        self.layout = widgets.VBox(children=[self.detection_output, self.selections, self.edit_canvas_layout])
-
-    def new_img_output_handler(self, change):
-        self.uploaded_file = self.uploader.uploader.value[0]
-        self.uploaded_file_type = self.uploaded_file['type']
-        self.img = self.new_img = self.uploader.uploaded_image
-        for output in self.outputs:
-            with output:
-                if self.uploader.uploaded_image is not None and self.uploaded_file_type in cfg.supported_types_list:
-                    output.clear_output(wait=True)
-                    self.img_w_contours, self.detections = geometry_detection(self.uploader.uploaded_image)
-                    self.num_detections = len(self.detections)
-                    self.choose_geometry_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
-                    img_plot = plt.imshow(self.img_w_contours)
-                    img_plot = plt.axis('off')
-                    plt.show()
-                else:
-                    self.img = self.new_img = None
-                    output.clear_output(wait=False)
-                    self.asset_scale_slider.layout.visibility = 'hidden'
-                    self.asset_horizontal_slider.layout.visibility = 'hidden'
-                    self.asset_vertical_slider.layout.visibility = 'hidden'
-                    self.done_btn.layout.visibility = 'hidden'
-
-
-    def done_filter_btn_handler(self, btn):
-        self.new_img = self.filters.tmp_img
-        self.img = self.new_img 
-        with self.detection_output:
-            self.detection_output.clear_output(wait=True)
-            self.img_w_contours, self.detections = geometry_detection(self.img)
-            self.num_detections = len(self.detections)
-            self.choose_geometry_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
-            img_plot = plt.imshow(self.img_w_contours)
-            img_plot = plt.axis('off')
-            plt.show()
-
-    def choose_geometry_dropdown_handler(self, change):
-        with self.edit_canvas:
-            self.edit_canvas.clear_output(wait=True)
-            if change['new'] is not None:
-                self.geometry_choice = change['new']
-                img_plot = plt.imshow(self.img)
-                img_plot = plt.axis('off')
-                plt.show()
-
-    def choose_asset_dropdown_handler(self, change):
-        if self.img is not None:
-            self.asset_scale_slider.layout.visibility = 'visible'
-            self.asset_horizontal_slider.layout.visibility = 'visible'
-            self.asset_vertical_slider.layout.visibility = 'visible'
-            self.done_btn.layout.visibility = 'visible'
-        else:
-            self.asset_scale_slider.layout.visibility = 'hidden'
-            self.asset_horizontal_slider.layout.visibility = 'hidden'
-            self.asset_vertical_slider.layout.visibility = 'hidden'
-            self.done_btn.layout.visibility = 'hidden'
-        with self.edit_canvas:
-            if change['new'] is not None and self.geometry_choice != -1 and self.img is not None:
-                self.asset_choice = change['new']
-                self.edit_canvas.clear_output(wait = True)
-                self.tmp_img = add_asset(cfg.geometry_assets, self.detections, self.geometry_choice, 
-                                            self.asset_choice, self.img, offset_y = self.offset_y,
-                                            offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
-                                            flip_x = self.flip_x, flip_y = self.flip_y)
-                img_plot = plt.imshow(self.tmp_img)
-                img_plot = plt.axis('off')
-                plt.show()
-        
-    def done_btn_handler(self, btn):
-        if self.tmp_img is not None:
-            self.new_img = self.tmp_img
-            self.img = self.new_img
-
-    def asset_scale_handler(self, change):
-        self.asset_scale = change['new']
-        with self.edit_canvas:
-            self.edit_canvas.clear_output(wait=True)
-            self.tmp_img = add_asset(cfg.geometry_assets, self.detections, self.geometry_choice, 
-                                     self.asset_choice, self.img, offset_y = self.offset_y, 
-                                     offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
-                                     flip_x = self.flip_x, flip_y = self.flip_y)
-            imp_plot = plt.imshow(self.tmp_img)
-            img_plot = plt.axis('off')
-            plt.show()
-
-    def asset_horizontal_slider_handler(self, change):
-        self.offset_x= change['new']
-        with self.edit_canvas:
-            self.edit_canvas.clear_output(wait=True)
-            self.tmp_img = add_asset(cfg.geometry_assets, self.detections, self.geometry_choice, 
-                                     self.asset_choice, self.img, offset_y = self.offset_y, 
-                                     offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
-                                     flip_x = self.flip_x, flip_y = self.flip_y)
-            imp_plot = plt.imshow(self.tmp_img)
-            img_plot = plt.axis('off')
-            plt.show()
-
-    def asset_vertical_slider_handler(self, change):
-        self.offset_y= change['new']
-        with self.edit_canvas:
-            self.edit_canvas.clear_output(wait=True)
-            self.tmp_img = add_asset(cfg.geometry_assets, self.detections, self.geometry_choice, 
-                                     self.asset_choice, self.img, offset_y = self.offset_y, 
-                                     offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
-                                     flip_x = self.flip_x, flip_y = self.flip_y)
-            imp_plot = plt.imshow(self.tmp_img)
-            img_plot = plt.axis('off')
-            plt.show()
+        self.img = self.add_hat_layout.tmp_img
 
 class SaveImageLayout:
     """

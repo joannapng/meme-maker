@@ -53,7 +53,7 @@ def eyes_detection(img):
 
     if num_faces + num_cat_faces == 0:
         print('No faces detected. Please choose another image')
-        return img, None
+        return img, []
 
     detections = get_detections((faces_frontal, faces_profile, cat_faces))
 
