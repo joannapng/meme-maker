@@ -52,8 +52,8 @@ class MemeAssetLayout:
 
         self.asset_horizontal_slider = widgets.IntSlider(
             value=0,
-            min=-128,
-            max=128,
+            min=-1000,
+            max=1000,
             step=1,
             description='Horizontal shift',
             disabled=False,
@@ -64,8 +64,8 @@ class MemeAssetLayout:
 
         self.asset_vertical_slider = widgets.IntSlider(
             value = 0, 
-            min = -128, 
-            max = 128, 
+            min = -1000, 
+            max = 1000, 
             step = 1, 
             description = 'Vertical shift',
             disabled = False, 
