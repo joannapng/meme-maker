@@ -117,7 +117,7 @@ class MemeAssetLayout:
             btn.on_click(self.done_filter_btn_handler)
 
         # choose asset
-        self.choose_asset_dropdown = widgets.Dropdown(options = [(str(i+1), i) for i in range(len(cfg.meme_face_assets))], value = None)
+        self.choose_asset_dropdown = widgets.Dropdown(options = [(str(i+1), i) for i in range(len(cfg.meme_face_assets))], value = None, disabled=True)
         self.choose_asset_dropdown.observe(self.choose_asset_dropdown_handler, names = 'value')
         self.choose_asset_layout = widgets.VBox(children=[self.choose_asset_dropdown, self.assets])
         self.choose_asset_accordion = widgets.Accordion(children=[self.choose_asset_layout], titles = ['Choose meme asset'])
@@ -139,16 +139,18 @@ class MemeAssetLayout:
         else:
             self.img = None
         
-            for output in self.outputs:
-                with output:
-                    if self.img is not None:
-                        output.clear_output(wait=True)
-                        self.img_w_boxes, self.detections = face_detection(self.img)
-                        self.num_detections = len(self.detections)
-                        self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
-                        img_plot = plt.imshow(self.img_w_boxes)
-                        img_plot = plt.axis('off')
-                        plt.show()            
+        for output in self.outputs:
+            with output:
+                if self.img is not None:
+                    output.clear_output(wait=True)
+                    self.img_w_boxes, self.detections = face_detection(self.img)
+                    self.num_detections = len(self.detections)
+                    self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
+                    img_plot = plt.imshow(self.img_w_boxes)
+                    img_plot = plt.axis('off')
+                    plt.show()    
+                else:
+                    output.clear_output(wait=False)        
 
         self.edit_canvas.clear_output(wait=False)
         self.asset_scale_slider.layout.visibility = 'hidden'
@@ -157,6 +159,10 @@ class MemeAssetLayout:
         self.done_btn.layout.visibility = 'hidden'
         self.choose_face_dropdown.value = None
         self.choose_asset_dropdown.value = None
+        self.face_choice = -1
+        self.asset_choice = -1
+        self.choose_asset_dropdown.disabled = True
+
 
     # when done button from filters tab is pressed, update img
     def done_filter_btn_handler(self, btn):
@@ -177,6 +183,9 @@ class MemeAssetLayout:
         self.done_btn.layout.visibility = 'hidden'
         self.choose_face_dropdown.value = None
         self.choose_asset_dropdown.value = None
+        self.face_choice = -1
+        self.asset_choice = -1
+        self.choose_asset_dropdown.disabled = True
 
     # choose face to add asset to from the dropdown
     def choose_face_dropdown_handler(self, change):
@@ -184,6 +193,7 @@ class MemeAssetLayout:
             self.edit_canvas.clear_output(wait=True)
             if change['new'] is not None:
                 self.face_choice = change['new']
+                self.choose_asset_dropdown.disabled = False
                 img_plot = plt.imshow(self.img)
                 img_plot = plt.axis('off')
                 plt.show()
@@ -212,8 +222,7 @@ class MemeAssetLayout:
         
     def done_btn_handler(self, btn):
         if self.tmp_img is not None:
-            self.new_img = self.tmp_img
-            self.img = self.new_img
+            self.img = self.tmp_img
 
     def asset_scale_handler(self, change):
         self.asset_scale = change['new']
@@ -347,8 +356,7 @@ class AddGlassesLayout:
         for btn in self.btns:
             btn.on_click(self.done_filter_btn_handler)
 
-
-        self.choose_asset_dropdown = widgets.Dropdown(options = [(str(i+1), i) for i in range(len(cfg.eye_assets))], value = None)
+        self.choose_asset_dropdown = widgets.Dropdown(options = [(str(i+1), i) for i in range(len(cfg.eye_assets))], value = None, disabled=True)
         self.choose_asset_dropdown.observe(self.choose_asset_dropdown_handler, names = 'value')
         self.choose_asset_layout = widgets.VBox(children=[self.choose_asset_dropdown, self.assets])
         self.choose_asset_accordion = widgets.Accordion(children=[self.choose_asset_layout], titles = ['Choose meme asset'])
@@ -369,16 +377,18 @@ class AddGlassesLayout:
         else:
             self.img = None
         
-            for output in self.outputs:
-                with output:
-                    if self.img is not None:
-                        output.clear_output(wait=True)
-                        self.img_w_boxes, self.detections = face_detection(self.uploader.uploaded_image)
-                        self.num_detections = len(self.detections)
-                        self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
-                        img_plot = plt.imshow(self.img_w_boxes)
-                        img_plot = plt.axis('off')
-                        plt.show()            
+        for output in self.outputs:
+            with output:
+                if self.img is not None:
+                    output.clear_output(wait=True)
+                    self.img_w_boxes, self.detections = face_detection(self.img)
+                    self.num_detections = len(self.detections)
+                    self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
+                    img_plot = plt.imshow(self.img_w_boxes)
+                    img_plot = plt.axis('off')
+                    plt.show()        
+                else:
+                    output.clear_output(wait=False)    
 
         self.edit_canvas.clear_output(wait=False)
         self.asset_scale_slider.layout.visibility = 'hidden'
@@ -387,6 +397,9 @@ class AddGlassesLayout:
         self.done_btn.layout.visibility = 'hidden'
         self.choose_face_dropdown.value = None
         self.choose_asset_dropdown.value = None
+        self.choose_asset_dropdown.disabled = True
+        self.face_choice = -1
+        self.asset_choice = -1
 
     def done_filter_btn_handler(self, btn):
         self.img = self.filters.tmp_img
@@ -406,12 +419,16 @@ class AddGlassesLayout:
         self.done_btn.layout.visibility = 'hidden'
         self.choose_face_dropdown.value = None
         self.choose_asset_dropdown.value = None
+        self.choose_asset_dropdown.disabled = True
+        self.face_choice = -1
+        self.asset_choice = -1
 
     def choose_face_dropdown_handler(self, change):
         with self.edit_canvas:
             self.edit_canvas.clear_output(wait=True)
             if change['new'] is not None:
                 self.eyes_choice = change['new']
+                self.choose_asset_dropdown.disabled = False
                 img_plot = plt.imshow(self.img)
                 img_plot = plt.axis('off')
                 plt.show()
@@ -595,16 +612,18 @@ class AddHatLayout:
         else:
             self.img = None
         
-            for output in self.outputs:
-                with output:
-                    if self.img is not None:
-                        output.clear_output(wait=True)
-                        self.img_w_boxes, self.detections = face_detection(self.uploader.uploaded_image)
-                        self.num_detections = len(self.detections)
-                        self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
-                        img_plot = plt.imshow(self.img_w_boxes)
-                        img_plot = plt.axis('off')
-                        plt.show()            
+        for output in self.outputs:
+            with output:
+                if self.img is not None:
+                    output.clear_output(wait=True)
+                    self.img_w_boxes, self.detections = face_detection(self.img)
+                    self.num_detections = len(self.detections)
+                    self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
+                    img_plot = plt.imshow(self.img_w_boxes)
+                    img_plot = plt.axis('off')
+                    plt.show()           
+                else:
+                    output.clear_output(wait=False) 
 
         self.edit_canvas.clear_output(wait=False)
         self.asset_scale_slider.layout.visibility = 'hidden'
@@ -613,7 +632,9 @@ class AddHatLayout:
         self.done_btn.layout.visibility = 'hidden'
         self.choose_face_dropdown.value = None
         self.choose_asset_dropdown.value = None
-
+        self.choose_asset_dropdown.disabled = True
+        self.face_choice = -1
+        self.asset_choice = -1
 
     def done_filter_btn_handler(self, btn):
         self.img = self.filters.tmp_img
@@ -633,12 +654,16 @@ class AddHatLayout:
         self.done_btn.layout.visibility = 'hidden'
         self.choose_face_dropdown.value = None
         self.choose_asset_dropdown.value = None
+        self.choose_asset_dropdown.disabled = True
+        self.face_choice = -1
+        self.asset_choice = -1
 
     def choose_face_dropdown_handler(self, change):
         with self.edit_canvas:
             self.edit_canvas.clear_output(wait=True)
             if change['new'] is not None:
                 self.eyes_choice = change['new']
+                self.choose_asset_dropdown.disabled = False
                 img_plot = plt.imshow(self.img)
                 img_plot = plt.axis('off')
                 plt.show()
@@ -990,8 +1015,7 @@ class FilterLayout:
         """
         self.uploaded_file = self.uploader.uploader.value[0]
         self.uploaded_file_type = self.uploaded_file['type']
-        self.img = self.new_img = self.uploader.uploaded_image
-
+        
         if self.uploader.uploaded_image is not None and self.uploaded_file_type in cfg.supported_types_list:
             self.img = self.new_img = self.uploader.uploaded_image
         else:
@@ -1003,7 +1027,7 @@ class FilterLayout:
             with output:
                 if self.img is not None:
                     self.display_items(self.controls)
-                    self.display_items(self.done_btns)            
+                    self.display_items(self.done_btns)
                     output.clear_output(wait=True)
                     img_plot = plt.imshow(self.img)
                     img_plot = plt.axis('off')
