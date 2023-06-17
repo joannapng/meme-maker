@@ -115,20 +115,11 @@ def add_hat(assets, detections, face_index, asset_index, img, offset_y = 0, offs
     detection = detections[face_index]
     x, y, w, h = detection
 
-    new_w = int(w * 1.5 * asset_scale)
-    new_h = int(h * 1.5 * asset_scale)
-    new_x = x + offset_x - new_w // 2
+    new_w = int(w * asset_scale)
+    new_h = int(h * asset_scale)
+    new_x = x + offset_x
     new_y = y + offset_y - new_h // 2
 
-    new_x = np.clip(new_x, 0, W)
-    new_y = np.clip(new_y, 0, H)
-
-    if new_w + new_x > W:
-        new_w = W - new_x 
-    
-    if new_h + new_y > H:
-        new_h = H - new_y
-    
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     image = overlay_image(image, asset, new_x, new_y, new_w, new_h, flip_x, flip_y)
 

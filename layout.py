@@ -151,18 +151,8 @@ class MemeAssetLayout:
                     plt.show()    
                 else:
                     output.clear_output(wait=False)        
-
-        self.edit_canvas.clear_output(wait=False)
-        self.asset_scale_slider.layout.visibility = 'hidden'
-        self.asset_horizontal_slider.layout.visibility = 'hidden'
-        self.asset_vertical_slider.layout.visibility = 'hidden'
-        self.done_btn.layout.visibility = 'hidden'
-        self.choose_face_dropdown.value = None
-        self.choose_asset_dropdown.value = None
-        self.face_choice = -1
-        self.asset_choice = -1
-        self.choose_asset_dropdown.disabled = True
-
+        
+        self.reset()
 
     # when done button from filters tab is pressed, update img
     def done_filter_btn_handler(self, btn):
@@ -176,16 +166,7 @@ class MemeAssetLayout:
             img_plot = plt.axis('off')
             plt.show()
 
-        self.edit_canvas.clear_output(wait=False)
-        self.asset_scale_slider.layout.visibility = 'hidden'
-        self.asset_horizontal_slider.layout.visibility = 'hidden'
-        self.asset_vertical_slider.layout.visibility = 'hidden'
-        self.done_btn.layout.visibility = 'hidden'
-        self.choose_face_dropdown.value = None
-        self.choose_asset_dropdown.value = None
-        self.face_choice = -1
-        self.asset_choice = -1
-        self.choose_asset_dropdown.disabled = True
+        self.reset()
 
     # choose face to add asset to from the dropdown
     def choose_face_dropdown_handler(self, change):
@@ -259,6 +240,22 @@ class MemeAssetLayout:
             imp_plot = plt.imshow(self.tmp_img)
             img_plot = plt.axis('off')
             plt.show()
+
+    def reset(self):
+        self.edit_canvas.clear_output(wait=False)
+        self.asset_scale_slider.layout.visibility = 'hidden'
+        self.asset_horizontal_slider.layout.visibility = 'hidden'
+        self.asset_vertical_slider.layout.visibility = 'hidden'
+        self.done_btn.layout.visibility = 'hidden'
+        self.choose_face_dropdown.value = None
+        self.choose_asset_dropdown.value = None
+        self.face_choice = -1
+        self.asset_choice = -1
+        self.choose_asset_dropdown.disabled = True
+        self.asset_scale_slider.value = 1
+        self.asset_horizontal_slider.value = 0
+        self.asset_vertical_slider.value = 0
+
 
 class AddGlassesLayout:
     def __init__(self, uploader, filters):
@@ -390,16 +387,7 @@ class AddGlassesLayout:
                 else:
                     output.clear_output(wait=False)    
 
-        self.edit_canvas.clear_output(wait=False)
-        self.asset_scale_slider.layout.visibility = 'hidden'
-        self.asset_horizontal_slider.layout.visibility = 'hidden'
-        self.asset_vertical_slider.layout.visibility = 'hidden'
-        self.done_btn.layout.visibility = 'hidden'
-        self.choose_face_dropdown.value = None
-        self.choose_asset_dropdown.value = None
-        self.choose_asset_dropdown.disabled = True
-        self.face_choice = -1
-        self.asset_choice = -1
+        self.reset()
 
     def done_filter_btn_handler(self, btn):
         self.img = self.filters.tmp_img
@@ -412,16 +400,7 @@ class AddGlassesLayout:
             img_plot = plt.axis('off')
             plt.show()
 
-        self.edit_canvas.clear_output(wait=False)
-        self.asset_scale_slider.layout.visibility = 'hidden'
-        self.asset_horizontal_slider.layout.visibility = 'hidden'
-        self.asset_vertical_slider.layout.visibility = 'hidden'
-        self.done_btn.layout.visibility = 'hidden'
-        self.choose_face_dropdown.value = None
-        self.choose_asset_dropdown.value = None
-        self.choose_asset_dropdown.disabled = True
-        self.face_choice = -1
-        self.asset_choice = -1
+        self.reset()
 
     def choose_face_dropdown_handler(self, change):
         with self.edit_canvas:
@@ -493,6 +472,21 @@ class AddGlassesLayout:
             imp_plot = plt.imshow(self.tmp_img)
             img_plot = plt.axis('off')
             plt.show()
+    
+    def reset(self):
+        self.edit_canvas.clear_output(wait=False)
+        self.asset_scale_slider.layout.visibility = 'hidden'
+        self.asset_horizontal_slider.layout.visibility = 'hidden'
+        self.asset_vertical_slider.layout.visibility = 'hidden'
+        self.done_btn.layout.visibility = 'hidden'
+        self.choose_face_dropdown.value = None
+        self.choose_asset_dropdown.value = None
+        self.face_choice = -1
+        self.asset_choice = -1
+        self.choose_asset_dropdown.disabled = True
+        self.asset_scale_slider.value = 1
+        self.asset_horizontal_slider.value = 0
+        self.asset_vertical_slider.value = 0
             
 class AddHatLayout:
     def __init__(self, uploader, filters):
@@ -625,16 +619,7 @@ class AddHatLayout:
                 else:
                     output.clear_output(wait=False) 
 
-        self.edit_canvas.clear_output(wait=False)
-        self.asset_scale_slider.layout.visibility = 'hidden'
-        self.asset_horizontal_slider.layout.visibility = 'hidden'
-        self.asset_vertical_slider.layout.visibility = 'hidden'
-        self.done_btn.layout.visibility = 'hidden'
-        self.choose_face_dropdown.value = None
-        self.choose_asset_dropdown.value = None
-        self.choose_asset_dropdown.disabled = True
-        self.face_choice = -1
-        self.asset_choice = -1
+        self.reset()
 
     def done_filter_btn_handler(self, btn):
         self.img = self.filters.tmp_img
@@ -647,16 +632,7 @@ class AddHatLayout:
             img_plot = plt.axis('off')
             plt.show()
 
-        self.edit_canvas.clear_output(wait=False)
-        self.asset_scale_slider.layout.visibility = 'hidden'
-        self.asset_horizontal_slider.layout.visibility = 'hidden'
-        self.asset_vertical_slider.layout.visibility = 'hidden'
-        self.done_btn.layout.visibility = 'hidden'
-        self.choose_face_dropdown.value = None
-        self.choose_asset_dropdown.value = None
-        self.choose_asset_dropdown.disabled = True
-        self.face_choice = -1
-        self.asset_choice = -1
+        self.reset()
 
     def choose_face_dropdown_handler(self, change):
         with self.edit_canvas:
@@ -728,6 +704,21 @@ class AddHatLayout:
             imp_plot = plt.imshow(self.tmp_img)
             img_plot = plt.axis('off')
             plt.show()
+
+    def reset(self):
+        self.edit_canvas.clear_output(wait=False)
+        self.asset_scale_slider.layout.visibility = 'hidden'
+        self.asset_horizontal_slider.layout.visibility = 'hidden'
+        self.asset_vertical_slider.layout.visibility = 'hidden'
+        self.done_btn.layout.visibility = 'hidden'
+        self.choose_face_dropdown.value = None
+        self.choose_asset_dropdown.value = None
+        self.face_choice = -1
+        self.asset_choice = -1
+        self.choose_asset_dropdown.disabled = True
+        self.asset_scale_slider.value = 1
+        self.asset_horizontal_slider.value = 0
+        self.asset_vertical_slider.value = 0
 
 class MemeMakerLayout:
     def __init__(self, uploader, filters):
@@ -1034,6 +1025,7 @@ class FilterLayout:
                     plt.show()
                 else:
                     output.clear_output(wait=False)
+        self.reset()
 
 
     def update_image_outputs_handler(self, btn):
@@ -1131,6 +1123,15 @@ class FilterLayout:
         """
         for item in items:
             item.layout.visibility = 'visible'
+    
+    def reset(self):
+        self.brightness_slider.value = 0
+        self.negative_checker.value = False
+        self.grayscale_checker = False
+        self.contrast_slider.value = 1
+        self.hue_slider.value = 0
+        self.saturation_slider.value = 1
+
     
 class uploadLayout:
     """
