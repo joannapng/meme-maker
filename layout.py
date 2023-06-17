@@ -136,16 +136,19 @@ class MemeAssetLayout:
 
         if self.uploader.uploaded_image is not None  and self.uploaded_file_type in cfg.supported_types_list:
             self.img = self.uploader.uploaded_image
+        else:
+            self.img = None
         
             for output in self.outputs:
                 with output:
-                    output.clear_output(wait=True)
-                    self.img_w_boxes, self.detections = face_detection(self.uploader.uploaded_image)
-                    self.num_detections = len(self.detections)
-                    self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
-                    img_plot = plt.imshow(self.img_w_boxes)
-                    img_plot = plt.axis('off')
-                    plt.show()            
+                    if self.img is not None:
+                        output.clear_output(wait=True)
+                        self.img_w_boxes, self.detections = face_detection(self.img)
+                        self.num_detections = len(self.detections)
+                        self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
+                        img_plot = plt.imshow(self.img_w_boxes)
+                        img_plot = plt.axis('off')
+                        plt.show()            
 
         self.edit_canvas.clear_output(wait=False)
         self.asset_scale_slider.layout.visibility = 'hidden'
@@ -166,6 +169,14 @@ class MemeAssetLayout:
             img_plot = plt.imshow(self.img_w_boxes)
             img_plot = plt.axis('off')
             plt.show()
+
+        self.edit_canvas.clear_output(wait=False)
+        self.asset_scale_slider.layout.visibility = 'hidden'
+        self.asset_horizontal_slider.layout.visibility = 'hidden'
+        self.asset_vertical_slider.layout.visibility = 'hidden'
+        self.done_btn.layout.visibility = 'hidden'
+        self.choose_face_dropdown.value = None
+        self.choose_asset_dropdown.value = None
 
     # choose face to add asset to from the dropdown
     def choose_face_dropdown_handler(self, change):
@@ -244,7 +255,7 @@ class AddGlassesLayout:
     def __init__(self, uploader, filters):
         self.uploader = uploader
         self.filters = filters
-        self.img = self.uploader.uploaded_image
+        self.img = None
         self.tmp_img = None
         self.eyes_choice = -1
         self.asset_choice = -1
@@ -348,28 +359,34 @@ class AddGlassesLayout:
         self.edit_canvas_layout = widgets.HBox(children=[self.edit_canvas, self.edit_tools_layout])
         self.layout = widgets.VBox(children=[self.detection_output, self.selections, self.edit_canvas_layout])
 
+    # update canvas when new image is uploaded    
     def new_img_output_handler(self, change):
         self.uploaded_file = self.uploader.uploader.value[0]
         self.uploaded_file_type = self.uploaded_file['type']
-        self.img = self.uploader.uploaded_image
-        for output in self.outputs:
-            with output:
-                if self.uploader.uploaded_image is not None and self.uploaded_file_type in cfg.supported_types_list:
-                    output.clear_output(wait=True)
-                    self.img_w_boxes, self.detections = eyes_detection(self.uploader.uploaded_image)
-                    self.num_detections = len(self.detections)
-                    self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
-                    img_plot = plt.imshow(self.img_w_boxes)
-                    img_plot = plt.axis('off')
-                    plt.show()
-                else:
-                    self.img = None
-                    output.clear_output(wait=False)
-                    self.asset_scale_slider.layout.visibility = 'hidden'
-                    self.asset_horizontal_slider.layout.visibility = 'hidden'
-                    self.asset_vertical_slider.layout.visibility = 'hidden'
-                    self.done_btn.layout.visibility = 'hidden'
 
+        if self.uploader.uploaded_image is not None  and self.uploaded_file_type in cfg.supported_types_list:
+            self.img = self.uploader.uploaded_image
+        else:
+            self.img = None
+        
+            for output in self.outputs:
+                with output:
+                    if self.img is not None:
+                        output.clear_output(wait=True)
+                        self.img_w_boxes, self.detections = face_detection(self.uploader.uploaded_image)
+                        self.num_detections = len(self.detections)
+                        self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
+                        img_plot = plt.imshow(self.img_w_boxes)
+                        img_plot = plt.axis('off')
+                        plt.show()            
+
+        self.edit_canvas.clear_output(wait=False)
+        self.asset_scale_slider.layout.visibility = 'hidden'
+        self.asset_horizontal_slider.layout.visibility = 'hidden'
+        self.asset_vertical_slider.layout.visibility = 'hidden'
+        self.done_btn.layout.visibility = 'hidden'
+        self.choose_face_dropdown.value = None
+        self.choose_asset_dropdown.value = None
 
     def done_filter_btn_handler(self, btn):
         self.img = self.filters.tmp_img
@@ -381,6 +398,14 @@ class AddGlassesLayout:
             img_plot = plt.imshow(self.img_w_boxes)
             img_plot = plt.axis('off')
             plt.show()
+
+        self.edit_canvas.clear_output(wait=False)
+        self.asset_scale_slider.layout.visibility = 'hidden'
+        self.asset_horizontal_slider.layout.visibility = 'hidden'
+        self.asset_vertical_slider.layout.visibility = 'hidden'
+        self.done_btn.layout.visibility = 'hidden'
+        self.choose_face_dropdown.value = None
+        self.choose_asset_dropdown.value = None
 
     def choose_face_dropdown_handler(self, change):
         with self.edit_canvas:
@@ -560,27 +585,34 @@ class AddHatLayout:
         self.edit_canvas_layout = widgets.HBox(children=[self.edit_canvas, self.edit_tools_layout])
         self.layout = widgets.VBox(children=[self.detection_output, self.selections, self.edit_canvas_layout])
 
+    # update canvas when new image is uploaded    
     def new_img_output_handler(self, change):
         self.uploaded_file = self.uploader.uploader.value[0]
         self.uploaded_file_type = self.uploaded_file['type']
-        self.img = self.uploader.uploaded_image
-        for output in self.outputs:
-            with output:
-                if self.uploader.uploaded_image is not None and self.uploaded_file_type in cfg.supported_types_list:
-                    output.clear_output(wait=True)
-                    self.img_w_boxes, self.detections = face_detection(self.uploader.uploaded_image)
-                    self.num_detections = len(self.detections)
-                    self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
-                    img_plot = plt.imshow(self.img_w_boxes)
-                    img_plot = plt.axis('off')
-                    plt.show()
-                else:
-                    self.img = None
-                    output.clear_output(wait=False)
-                    self.asset_scale_slider.layout.visibility = 'hidden'
-                    self.asset_horizontal_slider.layout.visibility = 'hidden'
-                    self.asset_vertical_slider.layout.visibility = 'hidden'
-                    self.done_btn.layout.visibility = 'hidden'
+
+        if self.uploader.uploaded_image is not None  and self.uploaded_file_type in cfg.supported_types_list:
+            self.img = self.uploader.uploaded_image
+        else:
+            self.img = None
+        
+            for output in self.outputs:
+                with output:
+                    if self.img is not None:
+                        output.clear_output(wait=True)
+                        self.img_w_boxes, self.detections = face_detection(self.uploader.uploaded_image)
+                        self.num_detections = len(self.detections)
+                        self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
+                        img_plot = plt.imshow(self.img_w_boxes)
+                        img_plot = plt.axis('off')
+                        plt.show()            
+
+        self.edit_canvas.clear_output(wait=False)
+        self.asset_scale_slider.layout.visibility = 'hidden'
+        self.asset_horizontal_slider.layout.visibility = 'hidden'
+        self.asset_vertical_slider.layout.visibility = 'hidden'
+        self.done_btn.layout.visibility = 'hidden'
+        self.choose_face_dropdown.value = None
+        self.choose_asset_dropdown.value = None
 
 
     def done_filter_btn_handler(self, btn):
@@ -593,6 +625,14 @@ class AddHatLayout:
             img_plot = plt.imshow(self.img_w_boxes)
             img_plot = plt.axis('off')
             plt.show()
+
+        self.edit_canvas.clear_output(wait=False)
+        self.asset_scale_slider.layout.visibility = 'hidden'
+        self.asset_horizontal_slider.layout.visibility = 'hidden'
+        self.asset_vertical_slider.layout.visibility = 'hidden'
+        self.done_btn.layout.visibility = 'hidden'
+        self.choose_face_dropdown.value = None
+        self.choose_asset_dropdown.value = None
 
     def choose_face_dropdown_handler(self, change):
         with self.edit_canvas:
@@ -952,22 +992,25 @@ class FilterLayout:
         self.uploaded_file_type = self.uploaded_file['type']
         self.img = self.new_img = self.uploader.uploaded_image
 
+        if self.uploader.uploaded_image is not None and self.uploaded_file_type in cfg.supported_types_list:
+            self.img = self.new_img = self.uploader.uploaded_image
+        else:
+            self.img = self.new_img = None
+            self.hide_items(self.controls)
+            self.hide_items(self.done_btns)
+        
         for output in self.outputs:
             with output:
-                # if the uploaded image type is supported, display the controls and the buttons
-                if self.uploader.uploaded_image is not None and self.uploaded_file_type in cfg.supported_types_list:
+                if self.img is not None:
                     self.display_items(self.controls)
                     self.display_items(self.done_btns)            
                     output.clear_output(wait=True)
-                    img_plot = plt.imshow(self.uploader.uploaded_image)
+                    img_plot = plt.imshow(self.img)
                     img_plot = plt.axis('off')
                     plt.show()
                 else:
-                # else hide them 
-                    self.img = self.new_img = None
-                    output.clear_output()
-                    self.hide_items(self.controls)
-                    self.hide_items(self.done_btns)
+                    output.clear_output(wait=False)
+
 
     def update_image_outputs_handler(self, btn):
         for output in self.outputs:
