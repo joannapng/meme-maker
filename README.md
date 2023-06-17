@@ -38,5 +38,6 @@ conda install nb_conda
 Open jupyter notebook in the project_env environment and choose the project_env kernel
 
 TODO
-- Hide every button, until a valid image is uploaded
-- 
+- Make the slider limits depend on the image size
+- Add preview to save image page
+- Add undo button to filters

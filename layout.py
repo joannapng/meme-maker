@@ -74,6 +74,20 @@ class MemeAssetLayout:
             readout = False
         )
 
+        self.asset_hflip_checker = widgets.Checkbox(
+            value = False,
+            description = 'Flip asset horizontally',
+            disabled = False,
+            indent = False
+        )
+
+        self.asset_vflip_checker = widgets.Checkbox(
+            value = False,
+            description = 'Flip asset vertically',
+            disabled = False,
+            indent = False
+        )
+
         # keep buttons and sliders hidden before asset is selected
         self.asset_scale_slider.layout.visibility = 'hidden'
         self.asset_scale_slider.observe(self.asset_scale_handler, names = 'value')
@@ -83,6 +97,12 @@ class MemeAssetLayout:
 
         self.asset_vertical_slider.layout.visibility = 'hidden'
         self.asset_vertical_slider.observe(self.asset_vertical_slider_handler, names = 'value')
+
+        self.asset_hflip_checker.layout.visibility = 'hidden'
+        self.asset_hflip_checker.observe(self.asset_hflip_checker_handler, names = 'value')
+        
+        self.asset_vflip_checker.layout.visibility = 'hidden'
+        self.asset_vflip_checker.observe(self.asset_vflip_checker_handler, names = 'value')
 
         self.done_btn.layout.visibility = 'hidden'
         self.done_btn.on_click(self.done_btn_handler)
@@ -125,7 +145,7 @@ class MemeAssetLayout:
         
         # layout
         self.edit_canvas = widgets.Output()
-        self.edit_tools_layout = widgets.VBox(children=[self.asset_scale_slider, self.asset_horizontal_slider, self.asset_vertical_slider, self.done_btn])
+        self.edit_tools_layout = widgets.VBox(children=[self.asset_scale_slider, self.asset_horizontal_slider, self.asset_vertical_slider, self.asset_hflip_checker, self.asset_vflip_checker, self.done_btn])
         self.edit_canvas_layout = widgets.HBox(children=[self.edit_canvas, self.edit_tools_layout])
         self.layout = widgets.VBox(children=[self.detection_output, self.selections, self.edit_canvas_layout])
 
@@ -185,11 +205,15 @@ class MemeAssetLayout:
             self.asset_scale_slider.layout.visibility = 'visible'
             self.asset_horizontal_slider.layout.visibility = 'visible'
             self.asset_vertical_slider.layout.visibility = 'visible'
+            self.asset_hflip_checker.layout.visibility = 'visible'
+            self.asset_vflip_checker.layout.visibility = 'visible'
             self.done_btn.layout.visibility = 'visible'
         else:
             self.asset_scale_slider.layout.visibility = 'hidden'
             self.asset_horizontal_slider.layout.visibility = 'hidden'
             self.asset_vertical_slider.layout.visibility = 'hidden'
+            self.asset_hflip_checker.layout.visibility = 'hidden'
+            self.asset_vflip_checker.layout.visibility = 'hidden'
             self.done_btn.layout.visibility = 'hidden'
         with self.edit_canvas:
             if change['new'] is not None and self.face_choice != -1 and self.img is not None:
@@ -213,7 +237,7 @@ class MemeAssetLayout:
                                      self.asset_choice, self.img, offset_y = self.offset_y, 
                                      offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
                                      flip_x = self.flip_x, flip_y = self.flip_y)
-            imp_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.imshow(self.tmp_img)
             img_plot = plt.axis('off')
             plt.show()
 
@@ -225,19 +249,43 @@ class MemeAssetLayout:
                                      self.asset_choice, self.img, offset_y = self.offset_y, 
                                      offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
                                      flip_x = self.flip_x, flip_y = self.flip_y)
-            imp_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.imshow(self.tmp_img)
             img_plot = plt.axis('off')
             plt.show()
 
     def asset_vertical_slider_handler(self, change):
-        self.offset_y= change['new']
+        self.offset_y = change['new']
         with self.edit_canvas:
             self.edit_canvas.clear_output(wait=True)
             self.tmp_img = add_asset(cfg.meme_face_assets, self.detections, self.face_choice, 
                                      self.asset_choice, self.img, offset_y = self.offset_y, 
                                      offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
                                      flip_x = self.flip_x, flip_y = self.flip_y)
-            imp_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.axis('off')
+            plt.show()
+
+    def asset_hflip_checker_handler(self, change):
+        self.flip_x = change['new']
+        with self.edit_canvas:
+            self.edit_canvas.clear_output(wait = True)
+            self.tmp_img = add_asset(cfg.meme_face_assets, self.detections, self.face_choice,
+                                    self.asset_choice, self.img, offset_y = self.offset_y, 
+                                    offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
+                                    flip_x = self.flip_x, flip_y = self.flip_y)
+            img_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.axis('off')
+            plt.show()
+
+    def asset_vflip_checker_handler(self, change):
+        self.flip_y = change['new']
+        with self.edit_canvas:
+            self.edit_canvas.clear_output(wait = True)
+            self.tmp_img = add_asset(cfg.meme_face_assets, self.detections, self.face_choice,
+                                    self.asset_choice, self.img, offset_y = self.offset_y, 
+                                    offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
+                                    flip_x = self.flip_x, flip_y = self.flip_y)
+            img_plot = plt.imshow(self.tmp_img)
             img_plot = plt.axis('off')
             plt.show()
 
@@ -255,7 +303,12 @@ class MemeAssetLayout:
         self.asset_scale_slider.value = 1
         self.asset_horizontal_slider.value = 0
         self.asset_vertical_slider.value = 0
-
+        self.asset_hflip_checker.value = False
+        self.asset_vflip_checker.value = False
+        self.offset_x = 0
+        self.offset_y = 0
+        self.flip_x = 0
+        self.flip_y = 0
 
 class AddGlassesLayout:
     def __init__(self, uploader, filters):
@@ -316,6 +369,20 @@ class AddGlassesLayout:
             readout = False
         )
 
+        self.asset_hflip_checker = widgets.Checkbox(
+            value = False,
+            description = 'Flip asset horizontally',
+            disabled = False,
+            indent = False
+        )
+
+        self.asset_vflip_checker = widgets.Checkbox(
+            value = False,
+            description = 'Flip asset vertically',
+            disabled = False,
+            indent = False
+        )
+
         self.asset_scale_slider.layout.visibility = 'hidden'
         self.asset_scale_slider.observe(self.asset_scale_handler, names = 'value')
         
@@ -324,6 +391,12 @@ class AddGlassesLayout:
 
         self.asset_vertical_slider.layout.visibility = 'hidden'
         self.asset_vertical_slider.observe(self.asset_vertical_slider_handler, names = 'value')
+
+        self.asset_hflip_checker.layout.visibility = 'hidden'
+        self.asset_hflip_checker.observe(self.asset_hflip_checker_handler, names = 'value')
+        
+        self.asset_vflip_checker.layout.visibility = 'hidden'
+        self.asset_vflip_checker.observe(self.asset_vflip_checker_handler, names = 'value')
 
         self.done_btn.layout.visibility = 'hidden'
         self.done_btn.on_click(self.done_btn_handler)
@@ -360,7 +433,7 @@ class AddGlassesLayout:
         self.selections = widgets.VBox(children=[self.choose_face_accordion, self.choose_asset_accordion])
         
         self.edit_canvas = widgets.Output()
-        self.edit_tools_layout = widgets.VBox(children=[self.asset_scale_slider, self.asset_horizontal_slider, self.asset_vertical_slider, self.done_btn])
+        self.edit_tools_layout = widgets.VBox(children=[self.asset_scale_slider, self.asset_horizontal_slider, self.asset_vertical_slider, self.asset_hflip_checker, self.asset_vflip_checker, self.done_btn])
         self.edit_canvas_layout = widgets.HBox(children=[self.edit_canvas, self.edit_tools_layout])
         self.layout = widgets.VBox(children=[self.detection_output, self.selections, self.edit_canvas_layout])
 
@@ -417,11 +490,15 @@ class AddGlassesLayout:
             self.asset_scale_slider.layout.visibility = 'visible'
             self.asset_horizontal_slider.layout.visibility = 'visible'
             self.asset_vertical_slider.layout.visibility = 'visible'
+            self.asset_hflip_checker.layout.visibility = 'visible'
+            self.asset_vflip_checker.layout.visibility = 'visible'
             self.done_btn.layout.visibility = 'visible'
         else:
             self.asset_scale_slider.layout.visibility = 'hidden'
             self.asset_horizontal_slider.layout.visibility = 'hidden'
             self.asset_vertical_slider.layout.visibility = 'hidden'
+            self.asset_hflip_checker.layout.visibility = 'hidden'
+            self.asset_vflip_checker.layout.visibility = 'hidden'
             self.done_btn.layout.visibility = 'hidden'
         with self.edit_canvas:
             if change['new'] is not None and self.eyes_choice != -1 and self.img is not None:
@@ -445,7 +522,7 @@ class AddGlassesLayout:
                                      self.asset_choice, self.img, offset_y = self.offset_y, 
                                      offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
                                      flip_x = self.flip_x, flip_y = self.flip_y)
-            imp_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.imshow(self.tmp_img)
             img_plot = plt.axis('off')
             plt.show()
 
@@ -457,7 +534,7 @@ class AddGlassesLayout:
                                      self.asset_choice, self.img, offset_y = self.offset_y, 
                                      offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
                                      flip_x = self.flip_x, flip_y = self.flip_y)
-            imp_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.imshow(self.tmp_img)
             img_plot = plt.axis('off')
             plt.show()
 
@@ -469,7 +546,31 @@ class AddGlassesLayout:
                                      self.asset_choice, self.img, offset_y = self.offset_y, 
                                      offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
                                      flip_x = self.flip_x, flip_y = self.flip_y)
-            imp_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.axis('off')
+            plt.show()
+
+    def asset_hflip_checker_handler(self, change):
+        self.flip_x = change['new']
+        with self.edit_canvas:
+            self.edit_canvas.clear_output(wait = True)
+            self.tmp_img = add_asset(cfg.eye_assets, self.detections, self.face_choice,
+                                    self.asset_choice, self.img, offset_y = self.offset_y, 
+                                    offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
+                                    flip_x = self.flip_x, flip_y = self.flip_y)
+            img_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.axis('off')
+            plt.show()
+
+    def asset_vflip_checker_handler(self, change):
+        self.flip_y = change['new']
+        with self.edit_canvas:
+            self.edit_canvas.clear_output(wait = True)
+            self.tmp_img = add_asset(cfg.eye_assets, self.detections, self.face_choice,
+                                    self.asset_choice, self.img, offset_y = self.offset_y, 
+                                    offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
+                                    flip_x = self.flip_x, flip_y = self.flip_y)
+            img_plot = plt.imshow(self.tmp_img)
             img_plot = plt.axis('off')
             plt.show()
     
@@ -487,6 +588,12 @@ class AddGlassesLayout:
         self.asset_scale_slider.value = 1
         self.asset_horizontal_slider.value = 0
         self.asset_vertical_slider.value = 0
+        self.asset_hflip_checker.value = False
+        self.asset_vflip_checker.value = False
+        self.offset_x = 0
+        self.offset_y = 0
+        self.flip_x = 0
+        self.flip_y = 0
             
 class AddHatLayout:
     def __init__(self, uploader, filters):
@@ -547,6 +654,21 @@ class AddHatLayout:
             readout = False
         )
 
+        self.asset_hflip_checker = widgets.Checkbox(
+            value = False,
+            description = 'Flip asset horizontally',
+            disabled = False,
+            indent = False
+        )
+
+        self.asset_vflip_checker = widgets.Checkbox(
+            value = False,
+            description = 'Flip asset vertically',
+            disabled = False,
+            indent = False
+        )
+
+
         self.asset_scale_slider.layout.visibility = 'hidden'
         self.asset_scale_slider.observe(self.asset_scale_handler, names = 'value')
         
@@ -555,6 +677,12 @@ class AddHatLayout:
 
         self.asset_vertical_slider.layout.visibility = 'hidden'
         self.asset_vertical_slider.observe(self.asset_vertical_slider_handler, names = 'value')
+
+        self.asset_hflip_checker.layout.visibility = 'hidden'
+        self.asset_hflip_checker.observe(self.asset_hflip_checker_handler, names = 'value')
+        
+        self.asset_vflip_checker.layout.visibility = 'hidden'
+        self.asset_vflip_checker.observe(self.asset_vflip_checker_handler, names = 'value')
 
         self.done_btn.layout.visibility = 'hidden'
         self.done_btn.on_click(self.done_btn_handler)
@@ -592,7 +720,7 @@ class AddHatLayout:
         self.selections = widgets.VBox(children=[self.choose_face_accordion, self.choose_asset_accordion])
         
         self.edit_canvas = widgets.Output()
-        self.edit_tools_layout = widgets.VBox(children=[self.asset_scale_slider, self.asset_horizontal_slider, self.asset_vertical_slider, self.done_btn])
+        self.edit_tools_layout = widgets.VBox(children=[self.asset_scale_slider, self.asset_horizontal_slider, self.asset_vertical_slider, self.asset_hflip_checker, self.asset_vflip_checker, self.done_btn])
         self.edit_canvas_layout = widgets.HBox(children=[self.edit_canvas, self.edit_tools_layout])
         self.layout = widgets.VBox(children=[self.detection_output, self.selections, self.edit_canvas_layout])
 
@@ -649,11 +777,15 @@ class AddHatLayout:
             self.asset_scale_slider.layout.visibility = 'visible'
             self.asset_horizontal_slider.layout.visibility = 'visible'
             self.asset_vertical_slider.layout.visibility = 'visible'
+            self.asset_hflip_checker.layout.visibility = 'visible'
+            self.asset_vflip_checker.layout.visibility = 'visible'
             self.done_btn.layout.visibility = 'visible'
         else:
             self.asset_scale_slider.layout.visibility = 'hidden'
             self.asset_horizontal_slider.layout.visibility = 'hidden'
             self.asset_vertical_slider.layout.visibility = 'hidden'
+            self.asset_hflip_checker.layout.visibility = 'hidden'
+            self.asset_vflip_checker.layout.visibility = 'hidden'
             self.done_btn.layout.visibility = 'hidden'
         with self.edit_canvas:
             if change['new'] is not None and self.eyes_choice != -1 and self.img is not None:
@@ -677,7 +809,7 @@ class AddHatLayout:
                                      self.asset_choice, self.img, offset_y = self.offset_y, 
                                      offset_x = self.offset_x, asset_scale = self.asset_scale,
                                      flip_x = self.flip_x, flip_y = self.flip_y)
-            imp_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.imshow(self.tmp_img)
             img_plot = plt.axis('off')
             plt.show()
 
@@ -689,7 +821,7 @@ class AddHatLayout:
                                      self.asset_choice, self.img, offset_y = self.offset_y, 
                                      offset_x = self.offset_x, asset_scale = self.asset_scale,
                                      flip_x = self.flip_x, flip_y = self.flip_y)
-            imp_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.imshow(self.tmp_img)
             img_plot = plt.axis('off')
             plt.show()
 
@@ -701,7 +833,31 @@ class AddHatLayout:
                                      self.asset_choice, self.img, offset_y = self.offset_y, 
                                      offset_x = self.offset_x, asset_scale = self.asset_scale,
                                      flip_x = self.flip_x, flip_y = self.flip_y)
-            imp_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.axis('off')
+            plt.show()
+    
+    def asset_hflip_checker_handler(self, change):
+        self.flip_x = change['new']
+        with self.edit_canvas:
+            self.edit_canvas.clear_output(wait = True)
+            self.tmp_img = add_asset(cfg.hat_assets, self.detections, self.face_choice,
+                                    self.asset_choice, self.img, offset_y = self.offset_y, 
+                                    offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
+                                    flip_x = self.flip_x, flip_y = self.flip_y)
+            img_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.axis('off')
+            plt.show()
+
+    def asset_vflip_checker_handler(self, change):
+        self.flip_y = change['new']
+        with self.edit_canvas:
+            self.edit_canvas.clear_output(wait = True)
+            self.tmp_img = add_asset(cfg.hat_assets, self.detections, self.face_choice,
+                                    self.asset_choice, self.img, offset_y = self.offset_y, 
+                                    offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
+                                    flip_x = self.flip_x, flip_y = self.flip_y)
+            img_plot = plt.imshow(self.tmp_img)
             img_plot = plt.axis('off')
             plt.show()
 
@@ -719,6 +875,12 @@ class AddHatLayout:
         self.asset_scale_slider.value = 1
         self.asset_horizontal_slider.value = 0
         self.asset_vertical_slider.value = 0
+        self.asset_hflip_checker.value = False
+        self.asset_vflip_checker.value = False
+        self.offset_x = 0
+        self.offset_y = 0
+        self.flip_x = 0
+        self.flip_y = 0
 
 class MemeMakerLayout:
     def __init__(self, uploader, filters):
@@ -841,6 +1003,14 @@ class FilterLayout:
             icon = 'check'
         )
 
+        self.brightness_undo_btn = widgets.Button(
+            value = False,
+            description = 'Undo',
+            disabled = False,
+            button_style = 'Primary',
+            icon = 'check'
+        )
+
         self.negative_checker = widgets.Checkbox(
             value = False,
             description = 'Negative Image',
@@ -891,6 +1061,14 @@ class FilterLayout:
             icon = 'check'
         )
 
+        self.contrast_undo_btn = widgets.Button(
+            value = False,
+            description = 'Undo',
+            disabled = False,
+            button_style = 'Primary',
+            icon = 'check'
+        )
+
         self.hue_slider = widgets.IntSlider(
             value=0,
             min=0,
@@ -908,6 +1086,14 @@ class FilterLayout:
             description = 'Done',
             disable = False,
             button_style = 'Success',
+            icon = 'check'
+        )
+
+        self.hue_undo_btn = widgets.Button(
+            value = False,
+            description = 'Undo',
+            disabled = False,
+            button_style = 'Primary',
             icon = 'check'
         )
 
@@ -931,6 +1117,14 @@ class FilterLayout:
             icon = 'check'
         )
 
+        self.saturation_undo_btn = widgets.Button(
+            value = False,
+            description = 'Undo',
+            disabled = False,
+            button_style = 'Primary',
+            icon = 'check'
+        )
+
         # invoke handler for the uploaded
         self.uploader.uploader.observe(self.new_img_output_handler, names = 'value')
 
@@ -940,8 +1134,9 @@ class FilterLayout:
         # Brightness
         self.brightness_slider.observe(self.brightness_slider_handler, names='value')
         self.brightness_done_btn.on_click(self.done_btn_handler)
+        self.brightness_undo_btn.on_click(self.undo_btn_handler)
         self.brightness_img_output = widgets.Output()
-        self.brightness_btns = widgets.HBox(children=[self.brightness_done_btn]) 
+        self.brightness_btns = widgets.HBox(children=[self.brightness_done_btn, self.brightness_undo_btn]) 
         self.brightness_layout = widgets.VBox(children=[self.brightness_slider, self.brightness_img_output, self.brightness_btns])
 
         # Negative
@@ -961,22 +1156,25 @@ class FilterLayout:
         # Constrast
         self.contrast_slider.observe(self.contrast_slider_handler, names='value')
         self.contrast_done_btn.on_click(self.done_btn_handler)
+        self.contrast_undo_btn.on_click(self.undo_btn_handler)
         self.contrast_img_output = widgets.Output()
-        self.contrast_btns = widgets.HBox(children=[self.contrast_done_btn])
+        self.contrast_btns = widgets.HBox(children=[self.contrast_done_btn, self.contrast_undo_btn])
         self.contrast_layout = widgets.VBox(children=[self.contrast_slider, self.contrast_img_output, self.contrast_btns])
 
         # Hue
         self.hue_slider.observe(self.hue_slider_handler, names='value')
         self.hue_done_btn.on_click(self.done_btn_handler)
+        self.hue_undo_btn.on_click(self.undo_btn_handler)
         self.hue_img_output = widgets.Output()
-        self.hue_btns = widgets.HBox(children=[self.hue_done_btn])
+        self.hue_btns = widgets.HBox(children=[self.hue_done_btn, self.hue_undo_btn])
         self.hue_layout = widgets.VBox(children=[self.hue_slider, self.hue_img_output, self.hue_btns])
 
         # Saturation
         self.saturation_slider.observe(self.saturation_slider_handler, names='value')
         self.saturation_done_btn.on_click(self.done_btn_handler)
+        self.saturation_undo_btn.on_click(self.undo_btn_handler)
         self.saturation_img_output = widgets.Output()
-        self.saturation_btns = widgets.HBox(children=[self.saturation_done_btn])
+        self.saturation_btns = widgets.HBox(children=[self.saturation_done_btn, self.saturation_undo_btn])
         self.saturation_layout = widgets.VBox(children=[self.saturation_slider, self.saturation_img_output, self.saturation_btns])
 
 
@@ -988,14 +1186,19 @@ class FilterLayout:
         self.done_btns = [self.brightness_done_btn, self.negative_done_btn, self.grayscale_done_btn, self.contrast_done_btn, 
                           self.hue_done_btn, self.saturation_done_btn]
 
+        self.undo_btns = [self.brightness_undo_btn, self.contrast_undo_btn, self.hue_undo_btn, self.saturation_undo_btn]
         # initialize the controls and the buttons to hidden (an image might have not been uploaded yet, an image is not the correct type)
         self.hide_items(self.controls)
         self.hide_items(self.done_btns)
+        self.hide_items(self.undo_btns)
 
-        # TODO: Investigate what this handler does (I don't remember why it is in here)
+        # update all outputs with the new image
         for button in self.done_btns:
             button.on_click(self.update_image_outputs_handler)
 
+        for button in self.undo_btns:
+            button.on_click(self.update_image_outputs_handler)
+        
         self.layout = widgets.Accordion(children=[self.brightness_layout, self.negative_layout, self.grayscale_layout, self.contrast_layout, 
                                                   self.hue_layout, self.saturation_layout], 
                                         titles=['Brightness', 'Negative', 'Grayscale', 'Contrast', 'Hue', 'Saturation'])
@@ -1013,12 +1216,14 @@ class FilterLayout:
             self.img = self.new_img = None
             self.hide_items(self.controls)
             self.hide_items(self.done_btns)
+            self.hide_items(self.undo_btns)
         
         for output in self.outputs:
             with output:
                 if self.img is not None:
                     self.display_items(self.controls)
                     self.display_items(self.done_btns)
+                    self.display_items(self.undo_btns)
                     output.clear_output(wait=True)
                     img_plot = plt.imshow(self.img)
                     img_plot = plt.axis('off')
@@ -1033,7 +1238,7 @@ class FilterLayout:
             with output:
                 if self.uploader.uploaded_image is not None:
                     output.clear_output(wait=True)
-                    img_plot = plt.imshow(self.new_img)
+                    img_plot = plt.imshow(self.img)
                     img_plot = plt.axis('off')
                     plt.show()
 
@@ -1042,7 +1247,16 @@ class FilterLayout:
         Handler for the done buttons, update the image
         """
         self.new_img = self.tmp_img
+        self.img = self.tmp_img
+    
+    def undo_btn_handler(self, btn):
+        """
+        Handler for the done buttons, update the image
+        """
+        # self.new_img = self.tmp_img
         self.img = self.new_img
+
+        self.reset()
 
     def brightness_slider_handler(self, change):
         """

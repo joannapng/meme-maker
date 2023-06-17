@@ -68,10 +68,10 @@ def overlay_image(img, asset, x, y, w, h, flip_x, flip_y):
     new_asset = crop_asset(new_asset, x1, x2, y1, y2, h, w, H, W)
 
     if flip_x:
-        new_asset = np.flipud(new_asset)
+        new_asset = np.fliplr(new_asset)
 
     if flip_y:
-        new_asset = np.fliplr(new_asset)
+        new_asset = np.flipud(new_asset)
 
     alpha = new_asset[:, :, 3]
     alpha = cv2.merge([alpha, alpha, alpha])
