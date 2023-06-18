@@ -458,7 +458,7 @@ class AddGlassesLayout:
             with output:
                 if self.img is not None:
                     output.clear_output(wait=True)
-                    self.img_w_boxes, self.detections = face_detection(self.img)
+                    self.img_w_boxes, self.detections = eyes_detection(self.img)
                     self.num_detections = len(self.detections)
                     self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
                     img_plot = plt.imshow(self.img_w_boxes)
@@ -987,6 +987,7 @@ class SaveImageLayout:
     def done_btn_handler(self, btn):
         self.img = self.editor.img
         with self.preview:
+            self.preview.clear_output(wait=True)
             img_plot = plt.imshow(self.img)
             img_plot = plt.axis('off')
             plt.show()
@@ -1012,8 +1013,8 @@ class FilterLayout:
         # --------- Control Widgets --------- #
         self.brightness_slider = widgets.IntSlider(
             value=0,
-            min=-128,
-            max=128,
+            min=-255,
+            max=255,
             step=1,
             description='Adjust Brightness:',
             disabled=False,
@@ -1152,7 +1153,7 @@ class FilterLayout:
             icon = 'check'
         )
 
-        # invoke handler for the uploaded
+        # invoke handler for the uploader
         self.uploader.uploader.observe(self.new_img_output_handler, names = 'value')
 
         # For each control, invoke the respective handler, the handler for the done button, 

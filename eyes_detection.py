@@ -75,9 +75,9 @@ def eyes_detection(img):
     # minNeighbors: parameter specifying how many neighbors each candidate 
     # rectange should have to be called a face. Higher values give less matches
     # of higher quality
-    faces_frontal = face_frontal_cascade.detectMultiScale(gray, 1.05, 3)
-    faces_profile = face_profile_cascade.detectMultiScale(gray, 1.05, 3)
-    cat_faces = cat_cascade.detectMultiScale(gray, 1.05, 3)
+    faces_frontal = face_frontal_cascade.detectMultiScale(gray, 1.1, 6)
+    faces_profile = face_profile_cascade.detectMultiScale(gray, 1.1, 6)
+    cat_faces = cat_cascade.detectMultiScale(gray, 1.1, 6)
 
     num_faces = len(faces_frontal) + len(faces_profile)
     num_cat_faces = len(cat_faces)
