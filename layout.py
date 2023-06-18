@@ -860,9 +860,9 @@ class AddHatLayout:
         self.flip_x = change['new']
         with self.edit_canvas:
             self.edit_canvas.clear_output(wait = True)
-            self.tmp_img = add_asset(cfg.hat_assets, self.detections, self.face_choice,
+            self.tmp_img = add_hat(cfg.hat_assets, self.detections, self.face_choice,
                                     self.asset_choice, self.img, offset_y = self.offset_y, 
-                                    offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
+                                    offset_x = self.offset_x, asset_scale = self.asset_scale,
                                     flip_x = self.flip_x, flip_y = self.flip_y)
             img_plot = plt.imshow(self.tmp_img)
             img_plot = plt.axis('off')
@@ -872,9 +872,9 @@ class AddHatLayout:
         self.flip_y = change['new']
         with self.edit_canvas:
             self.edit_canvas.clear_output(wait = True)
-            self.tmp_img = add_asset(cfg.hat_assets, self.detections, self.face_choice,
+            self.tmp_img = add_hat(cfg.hat_assets, self.detections, self.face_choice,
                                     self.asset_choice, self.img, offset_y = self.offset_y, 
-                                    offset_x = self.offset_x, bounding_box_scale = self.asset_scale,
+                                    offset_x = self.offset_x, asset_scale = self.asset_scale,
                                     flip_x = self.flip_x, flip_y = self.flip_y)
             img_plot = plt.imshow(self.tmp_img)
             img_plot = plt.axis('off')

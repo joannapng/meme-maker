@@ -1,7 +1,14 @@
+"""
+Functions to detect faces used for adding meme assets and hats
+"""
+
 import cv2
-import ipywidgets as widgets
 
 def draw_bounding_boxes(faces_frontal, faces_profile, cat_faces, img):
+    """
+    Draw bounding boxes around detected faces
+    """
+
     i = 1
     new_image = img
     for face_frontal in faces_frontal:
@@ -27,16 +34,28 @@ def draw_bounding_boxes(faces_frontal, faces_profile, cat_faces, img):
 
 
 def face_detection(img):
-    bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-    gray = cv2.cvtColor(bgr, cv2.COLOR_RGB2GRAY) # convert to gray scale
+    """
+    Given an img, find a set of eyes for each face using Haar Cascades
+    """
+    bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)      # convert to bgr
+    gray = cv2.cvtColor(bgr, cv2.COLOR_RGB2GRAY)    # convert to gray 
+                                                    # (could be done in one step, but we need bgr 
+                                                    # for drawing bounding boxes)
 
-    face_frontal_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_default.xml') # detect frontal faces
-    face_profile_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_profileface.xml') # detect profiles
-    cat_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_frontalcatface.xml') # detect cats
-    
-    faces_frontal = face_frontal_cascade.detectMultiScale(gray, 1.3, 4)
-    faces_profile = face_profile_cascade.detectMultiScale(gray, 1.3, 4)
-    cat_faces = cat_cascade.detectMultiScale(gray, 2, 1)
+    face_frontal_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_frontalface_default.xml')    # detect frontal faces
+    face_profile_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_profileface.xml')            # detect profiles
+    cat_cascade = cv2.CascadeClassifier('haarcascades/haarcascade_frontalcatface.xml')                  # detect cats
+
+    # detectMultiScale parameters: img, scaleFactor, minNeighbors
+    # scaleFactor: parameter specifying how much the image size is reduced at 
+    # each image scale. The smaller the scaleFactor, the smaller the step for 
+    # resizing -> + more accuracy, - slower
+    # minNeighbors: parameter specifying how many neighbors each candidate 
+    # rectange should have to be called a face. Higher values give less matches
+    # of higher quality
+    faces_frontal = face_frontal_cascade.detectMultiScale(gray, 1.05, 3)
+    faces_profile = face_profile_cascade.detectMultiScale(gray, 1.05, 3)
+    cat_faces = cat_cascade.detectMultiScale(gray, 1.05, 3)
 
     num_faces = len(faces_frontal) + len(faces_profile)
     num_cat_faces = len(cat_faces)
@@ -54,6 +73,9 @@ def face_detection(img):
     return new_img, get_detections(detections)
 
 def get_detections(detections):
+    """
+    Construct a list of all detected faces (frontal, profile, cats)
+    """
     faces_frontal, faces_profile, cat_faces = detections
 
     faces = []

@@ -1,3 +1,7 @@
+"""
+Configuration file
+"""
+
 supported_types_str = 'image/png, image/jpeg, image/tiff'
 supported_types_list = ['image/png', 'image/jpeg', 'image/tiff']
 

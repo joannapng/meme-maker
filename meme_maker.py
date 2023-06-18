@@ -60,14 +60,14 @@ def overlay_image(img, asset, x, y, w, h, flip_x, flip_y):
     scale = min(h / asset.shape[0], w / asset.shape[1])
     new_dims = (int(asset.shape[1] * scale), int(asset.shape[0] * scale))
 
-    asset = cv2.resize(asset, new_dims)
-    
     # must flip before any other process
     if flip_x:
         asset = np.fliplr(asset)
 
     if flip_y:
         asset = np.flipud(asset)
+        
+    asset = cv2.resize(asset, new_dims)
 
     new_asset = add_padding((h, w), asset)
 
@@ -80,7 +80,6 @@ def overlay_image(img, asset, x, y, w, h, flip_x, flip_y):
     
     new_asset = crop_asset(new_asset, x1, x2, y1, y2, h, w, H, W)
     
-
     alpha = new_asset[:, :, 3]
     alpha = cv2.merge([alpha, alpha, alpha])
     
