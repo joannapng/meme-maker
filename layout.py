@@ -14,7 +14,9 @@ from meme_maker import *
 from ipywidgets import GridspecLayout
 
 class MemeAssetLayout:
-    # class to add meme assets
+    """
+    Class that adds meme assets
+    """
     def __init__(self, uploader, filters):
         self.uploader = uploader # Upload file tab
         self.filters = filters # Filters tab
@@ -111,6 +113,7 @@ class MemeAssetLayout:
         self.detection_output = widgets.Output()
         self.outputs = [self.detection_output]
 
+        # wait for a new img to be uploaded
         self.uploader.uploader.observe(self.new_img_output_handler, names = 'value')        
         self.btns = self.filters.done_btns
 
@@ -122,7 +125,7 @@ class MemeAssetLayout:
         
         self.done_btns = [self.done_btn]
         
-        # 2 row, 3 column asset display
+        # 2 row, 3 column asset display (print available assets)
         self.assets = GridspecLayout(2, 3)
 
         for i, asset in enumerate(cfg.meme_face_assets):
@@ -133,6 +136,7 @@ class MemeAssetLayout:
                 img_plot = plt.axis('off')
                 plt.show()
 
+        # update img if filter done btn is pressed
         for btn in self.btns:
             btn.on_click(self.done_filter_btn_handler)
 
@@ -148,9 +152,11 @@ class MemeAssetLayout:
         self.edit_tools_layout = widgets.VBox(children=[self.asset_scale_slider, self.asset_horizontal_slider, self.asset_vertical_slider, self.asset_hflip_checker, self.asset_vflip_checker, self.done_btn])
         self.edit_canvas_layout = widgets.HBox(children=[self.edit_canvas, self.edit_tools_layout])
         self.layout = widgets.VBox(children=[self.detection_output, self.selections, self.edit_canvas_layout])
-
-    # update canvas when new image is uploaded    
+   
     def new_img_output_handler(self, change):
+        """
+        Update canvas when a new image is uploaded
+        """
         self.uploaded_file = self.uploader.uploader.value[0]
         self.uploaded_file_type = self.uploaded_file['type']
 
@@ -163,6 +169,7 @@ class MemeAssetLayout:
             with output:
                 if self.img is not None:
                     output.clear_output(wait=True)
+                    # perform face detection and draw bounding boxes
                     self.img_w_boxes, self.detections = face_detection(self.img)
                     self.num_detections = len(self.detections)
                     self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
@@ -172,13 +179,18 @@ class MemeAssetLayout:
                 else:
                     output.clear_output(wait=False)        
         
+        # reset controls to initial state
         self.reset()
 
     # when done button from filters tab is pressed, update img
     def done_filter_btn_handler(self, btn):
+        """
+        Update canvas when a done filter btn is pressed
+        """
         self.img = self.filters.tmp_img
         with self.detection_output:
             self.detection_output.clear_output(wait=True)
+            # perform face detection and draw bounding boxes
             self.img_w_boxes, self.detections = face_detection(self.img)
             self.num_detections = len(self.detections)
             self.choose_face_dropdown.options = [(str(i+1), i) for i in range(self.num_detections)]
@@ -188,8 +200,10 @@ class MemeAssetLayout:
 
         self.reset()
 
-    # choose face to add asset to from the dropdown
     def choose_face_dropdown_handler(self, change):
+        """
+        Choose face to add meme asset to from dropdown menu
+        """
         with self.edit_canvas:
             self.edit_canvas.clear_output(wait=True)
             if change['new'] is not None:
@@ -199,8 +213,10 @@ class MemeAssetLayout:
                 img_plot = plt.axis('off')
                 plt.show()
 
-    # chosse asset from the dropdown 
     def choose_asset_dropdown_handler(self, change):
+        """
+        Choose asset from dropdown menu
+        """
         if self.img is not None:
             self.asset_scale_slider.layout.visibility = 'visible'
             self.asset_horizontal_slider.layout.visibility = 'visible'
@@ -223,6 +239,7 @@ class MemeAssetLayout:
         self.asset_vertical_slider.max = W // 2
 
         with self.edit_canvas:
+            # add asset only if a face has been chosen
             if change['new'] is not None and self.face_choice != -1 and self.img is not None:
                 self.asset_choice = change['new']
                 self.edit_canvas.clear_output(wait = True)
@@ -233,10 +250,16 @@ class MemeAssetLayout:
                 plt.show()
         
     def done_btn_handler(self, btn):
+        """
+        Update img when the done button is pressed
+        """
         if self.tmp_img is not None:
             self.img = self.tmp_img
 
     def asset_scale_handler(self, change):
+        """
+        Handler invoked when an asset scale is chosen
+        """
         self.asset_scale = change['new']
         with self.edit_canvas:
             self.edit_canvas.clear_output(wait=True)
@@ -249,6 +272,9 @@ class MemeAssetLayout:
             plt.show()
 
     def asset_horizontal_slider_handler(self, change):
+        """
+        Handler invoked when a value from the horizontal slider is chosen
+        """
         self.offset_x= change['new']
         with self.edit_canvas:
             self.edit_canvas.clear_output(wait=True)
@@ -261,6 +287,9 @@ class MemeAssetLayout:
             plt.show()
 
     def asset_vertical_slider_handler(self, change):
+        """
+        Handler invoked when a value from the vertical slider is chosen
+        """
         self.offset_y = change['new']
         with self.edit_canvas:
             self.edit_canvas.clear_output(wait=True)
@@ -273,6 +302,9 @@ class MemeAssetLayout:
             plt.show()
 
     def asset_hflip_checker_handler(self, change):
+        """
+        Handler invoked when hflip checker state changes
+        """
         self.flip_x = change['new']
         with self.edit_canvas:
             self.edit_canvas.clear_output(wait = True)
@@ -285,6 +317,9 @@ class MemeAssetLayout:
             plt.show()
 
     def asset_vflip_checker_handler(self, change):
+        """
+        Handler invoked when vflip checker state changes
+        """
         self.flip_y = change['new']
         with self.edit_canvas:
             self.edit_canvas.clear_output(wait = True)
@@ -297,6 +332,9 @@ class MemeAssetLayout:
             plt.show()
 
     def reset(self):
+        """
+        Reset when a new image is uploaded
+        """
         self.edit_canvas.clear_output(wait=False)
         self.asset_scale_slider.layout.visibility = 'hidden'
         self.asset_horizontal_slider.layout.visibility = 'hidden'
@@ -318,6 +356,10 @@ class MemeAssetLayout:
         self.flip_y = 0
 
 class AddGlassesLayout:
+    """
+    Class for adding glasses, same functions as above, replace face
+    detecction and eye detection
+    """
     def __init__(self, uploader, filters):
         self.uploader = uploader
         self.filters = filters
@@ -444,7 +486,6 @@ class AddGlassesLayout:
         self.edit_canvas_layout = widgets.HBox(children=[self.edit_canvas, self.edit_tools_layout])
         self.layout = widgets.VBox(children=[self.detection_output, self.selections, self.edit_canvas_layout])
 
-    # update canvas when new image is uploaded    
     def new_img_output_handler(self, change):
         self.uploaded_file = self.uploader.uploader.value[0]
         self.uploaded_file_type = self.uploaded_file['type']
@@ -736,7 +777,6 @@ class AddHatLayout:
         self.edit_canvas_layout = widgets.HBox(children=[self.edit_canvas, self.edit_tools_layout])
         self.layout = widgets.VBox(children=[self.detection_output, self.selections, self.edit_canvas_layout])
 
-    # update canvas when new image is uploaded    
     def new_img_output_handler(self, change):
         self.uploaded_file = self.uploader.uploader.value[0]
         self.uploaded_file_type = self.uploaded_file['type']
@@ -903,6 +943,9 @@ class AddHatLayout:
 
 class MemeMakerLayout:
     def __init__(self, uploader, filters):
+        """
+        Class that instatiates the 3 classes (for meme assets, eye assets, hat assets)
+        """
         self.uploader = uploader
         self.filters = filters
         self.img = self.uploader.uploaded_image
@@ -1157,6 +1200,7 @@ class FilterLayout:
         self.uploader.uploader.observe(self.new_img_output_handler, names = 'value')
 
         # For each control, invoke the respective handler, the handler for the done button, 
+        # the handler for the undo btn (if one exists) and
         # instatiate the output and the layout
 
         # Brightness
@@ -1206,21 +1250,21 @@ class FilterLayout:
         self.saturation_layout = widgets.VBox(children=[self.saturation_slider, self.saturation_img_output, self.saturation_btns])
 
 
-        # list of outputs, controls and done buttons
+        # list of outputs, controls done and undo buttons
         self.outputs = [self.brightness_img_output, self.negative_img_output, self.grayscale_img_output, self.contrast_img_output, 
                         self.hue_img_output, self.saturation_img_output]
         self.controls = [self.brightness_slider, self.negative_checker, self.grayscale_checker, self.contrast_slider, 
                          self.hue_slider, self.saturation_slider]
         self.done_btns = [self.brightness_done_btn, self.negative_done_btn, self.grayscale_done_btn, self.contrast_done_btn, 
                           self.hue_done_btn, self.saturation_done_btn]
-
         self.undo_btns = [self.brightness_undo_btn, self.contrast_undo_btn, self.hue_undo_btn, self.saturation_undo_btn]
+        
         # initialize the controls and the buttons to hidden (an image might have not been uploaded yet, an image is not the correct type)
         self.hide_items(self.controls)
         self.hide_items(self.done_btns)
         self.hide_items(self.undo_btns)
 
-        # update all outputs with the new image
+        # update all outputs with the new image when one done or undo button is clicked
         for button in self.done_btns:
             button.on_click(self.update_image_outputs_handler)
 
@@ -1239,8 +1283,13 @@ class FilterLayout:
         self.uploaded_file_type = self.uploaded_file['type']
         
         if self.uploader.uploaded_image is not None and self.uploaded_file_type in cfg.supported_types_list:
+            # display controls if the image type is supported
             self.img = self.new_img = self.uploader.uploaded_image
+            self.display_items(self.controls)
+            self.display_items(self.done_btns)
+            self.display_items(self.undo_btns)
         else:
+            # if wrong type is uploaded hide the buttons and the controls
             self.img = self.new_img = None
             self.hide_items(self.controls)
             self.hide_items(self.done_btns)
@@ -1249,9 +1298,6 @@ class FilterLayout:
         for output in self.outputs:
             with output:
                 if self.img is not None:
-                    self.display_items(self.controls)
-                    self.display_items(self.done_btns)
-                    self.display_items(self.undo_btns)
                     output.clear_output(wait=True)
                     img_plot = plt.imshow(self.img)
                     img_plot = plt.axis('off')
@@ -1262,6 +1308,10 @@ class FilterLayout:
 
 
     def update_image_outputs_handler(self, btn):
+        """
+        Handler that updates all canvases with the correct image
+        when the done or undo image is clicked
+        """
         for output in self.outputs:
             with output:
                 if self.uploader.uploaded_image is not None:
@@ -1281,7 +1331,6 @@ class FilterLayout:
         """
         Handler for the done buttons, update the image
         """
-        # self.new_img = self.tmp_img
         self.img = self.new_img
 
         self.reset()
@@ -1367,6 +1416,9 @@ class FilterLayout:
             item.layout.visibility = 'visible'
     
     def reset(self):
+        """
+        Reset controls when a new image is uploaded
+        """
         self.brightness_slider.value = 0
         self.negative_checker.value = False
         self.grayscale_checker = False
@@ -1417,6 +1469,9 @@ class uploadLayout:
                 plt.show()
                 
     def image_to_numpy(self):
+        """
+        Uploader content is in bytes, convert to numpy image
+        """
         img = Image.open(io.BytesIO(self.uploaded_file['content'])).convert('RGB')
         red_channel = np.array(img.getchannel(0), dtype = np.uint8)
         green_channel = np.array(img.getchannel(1), dtype = np.uint8)
@@ -1433,7 +1488,9 @@ class Layout:
         self.build_layout()
 
     def build_layout(self):
-        # TODO: Add eye assets and geometry detection tabs 
+        """
+        Instatiates all tabs (Upload Image, Filters, Meme Maker, Save Image)
+        """
         self.uploader = uploadLayout()
         self.filters = FilterLayout(self.uploader)
         self.meme_maker = MemeMakerLayout(self.uploader, self.filters)
