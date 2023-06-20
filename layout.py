@@ -1052,6 +1052,8 @@ class FilterLayout:
         self.uploader = uploader # we need the uploaded to see when a new file is uploaded
         self.img = self.uploader.uploaded_image
         self.new_img = self.img
+        self.sigma_s = 1
+        self.sigma_b = 1
 
         # --------- Control Widgets --------- #
         self.brightness_slider = widgets.IntSlider(
@@ -1196,6 +1198,46 @@ class FilterLayout:
             icon = 'check'
         )
 
+        self.bilateral_sigma_s_slider = widgets.IntSlider(
+            value = 1, 
+            min = 1, 
+            max = 10,
+            step = 1,
+            description = 'Adjust sigma for Gaussian',
+            disabled = False,
+            continuous_update = False,
+            orientation = 'horizontal',
+            readout = False
+        )
+
+        self.bilateral_sigma_b_slider = widgets.IntSlider(
+            value = 1, 
+            min = 1, 
+            max = 10,
+            step = 1,
+            description = 'Adjust sigma for Bilateral',
+            disabled = False,
+            continuous_update = False,
+            orientation = 'horizontal',
+            readout = False
+        )
+
+        self.bilateral_done_btn = widgets.Button(
+            value = False,
+            description = 'Done',
+            disable = False,
+            button_style = 'Success',
+            icon = 'check'
+        )
+
+        self.bilateral_undo_btn = widgets.Button(
+            value = False,
+            description = 'Undo',
+            disable = False,
+            button_style = 'Primary',
+            icon = 'check'
+        )
+
         # invoke handler for the uploader
         self.uploader.uploader.observe(self.new_img_output_handler, names = 'value')
 
@@ -1249,15 +1291,25 @@ class FilterLayout:
         self.saturation_btns = widgets.HBox(children=[self.saturation_done_btn, self.saturation_undo_btn])
         self.saturation_layout = widgets.VBox(children=[self.saturation_slider, self.saturation_img_output, self.saturation_btns])
 
+        # Bilateral
+        self.bilateral_sigma_s_slider.observe(self.bilateral_sigma_s_slider_handler, names = 'value')
+        self.bilateral_sigma_b_slider.observe(self.bilateral_sigma_b_slider_handler, names = 'value')
+        self.bilateral_undo_btn.on_click(self.undo_btn_handler)
+        self.bilateral_done_btn.on_click(self.done_btn_handler)
+        self.bilateral_img_output = widgets.Output()
+        self.bilateral_btns = widgets.HBox(children=[self.bilateral_done_btn, self.bilateral_undo_btn])
+        self.bilateral_sliders = widgets.VBox(children=[self.bilateral_sigma_s_slider, self.bilateral_sigma_b_slider])
+        self.bilateral_layout = widgets.VBox(children=[self.bilateral_sliders, self.bilateral_img_output, self.bilateral_btns])
+
 
         # list of outputs, controls done and undo buttons
         self.outputs = [self.brightness_img_output, self.negative_img_output, self.grayscale_img_output, self.contrast_img_output, 
-                        self.hue_img_output, self.saturation_img_output]
+                        self.hue_img_output, self.saturation_img_output, self.bilateral_img_output]
         self.controls = [self.brightness_slider, self.negative_checker, self.grayscale_checker, self.contrast_slider, 
-                         self.hue_slider, self.saturation_slider]
+                         self.hue_slider, self.saturation_slider, self.bilateral_sigma_b_slider, self.bilateral_sigma_s_slider]
         self.done_btns = [self.brightness_done_btn, self.negative_done_btn, self.grayscale_done_btn, self.contrast_done_btn, 
-                          self.hue_done_btn, self.saturation_done_btn]
-        self.undo_btns = [self.brightness_undo_btn, self.contrast_undo_btn, self.hue_undo_btn, self.saturation_undo_btn]
+                          self.hue_done_btn, self.saturation_done_btn, self.bilateral_done_btn]
+        self.undo_btns = [self.brightness_undo_btn, self.contrast_undo_btn, self.hue_undo_btn, self.saturation_undo_btn, self.bilateral_undo_btn]
         
         # initialize the controls and the buttons to hidden (an image might have not been uploaded yet, an image is not the correct type)
         self.hide_items(self.controls)
@@ -1272,8 +1324,8 @@ class FilterLayout:
             button.on_click(self.update_image_outputs_handler)
         
         self.layout = widgets.Accordion(children=[self.brightness_layout, self.negative_layout, self.grayscale_layout, self.contrast_layout, 
-                                                  self.hue_layout, self.saturation_layout], 
-                                        titles=['Brightness', 'Negative', 'Grayscale', 'Contrast', 'Hue', 'Saturation'])
+                                                  self.hue_layout, self.saturation_layout, self.bilateral_layout], 
+                                        titles=['Brightness', 'Negative', 'Grayscale', 'Contrast', 'Hue', 'Saturation', 'Smoothing w/ Bilateral Filter'])
 
     def new_img_output_handler(self, change):
         """
@@ -1401,6 +1453,27 @@ class FilterLayout:
             img_plot = plt.axis('off')
             plt.show()
 
+    def bilateral_sigma_s_slider_handler(self, change):
+        self.bilateral_img_output.clear_output(wait=True)
+        self.sigma_s = change['new']
+        self.tmp_img = bilateralFilter(self.new_img, self.sigma_s, self.sigma_b)
+
+        with self.bilateral_img_output:
+            img_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.axis('off')
+            plt.show()
+
+    def bilateral_sigma_b_slider_handler(self, change):
+        self.bilateral_img_output.clear_output(wait=True)
+        self.sigma_b = change['new']
+        self.tmp_img = bilateralFilter(self.new_img, self.sigma_s, self.sigma_b)
+
+        with self.bilateral_img_output:
+            img_plot = plt.imshow(self.tmp_img)
+            img_plot = plt.axis('off')
+            plt.show()
+
+
     def hide_items(self, items):
         """
         Hide the items in items
@@ -1425,6 +1498,8 @@ class FilterLayout:
         self.contrast_slider.value = 1
         self.hue_slider.value = 0
         self.saturation_slider.value = 1
+        self.bilateral_sigma_b_slider.value = 1
+        self.bilateral_sigma_s_slider.value = 1
 
     
 class uploadLayout:
