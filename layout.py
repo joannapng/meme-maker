@@ -1213,7 +1213,7 @@ class FilterLayout:
         self.bilateral_sigma_b_slider = widgets.IntSlider(
             value = 1, 
             min = 1, 
-            max = 10,
+            max = 100,
             step = 1,
             description = 'Adjust sigma for Bilateral',
             disabled = False,
