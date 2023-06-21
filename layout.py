@@ -995,7 +995,8 @@ class SaveImageLayout:
     """
     Class that realizes the Save Image As layout
     """
-    def __init__(self, editor):
+    def __init__(self, uploader, editor):
+        self.uploader = uploader
         self.editor = editor # editor is the last tab that has edited the picture
         self.img = self.editor.img
 
@@ -1025,7 +1026,22 @@ class SaveImageLayout:
         for btn in self.btns:
             btn.on_click(self.done_btn_handler)
 
+        self.uploader.uploader.observe(self.new_img_output_handler, names = 'value')        
         self.layout = widgets.VBox(children=[self.preview, self.filename, self.save_btn])
+
+    def new_img_output_handler(self, change):
+        """
+        Handler for the uploaded
+        """
+        self.uploaded_file = self.uploader.uploader.value[0]
+        self.uploaded_file_type = self.uploaded_file['type']
+        
+        if self.uploader.uploaded_image is not None and self.uploaded_file_type in cfg.supported_types_list:
+            # display controls if the image type is supported
+            self.img = self.new_img = self.uploader.uploaded_image
+        else:
+            # if wrong type is uploaded hide the buttons and the controls
+            self.img = self.new_img = None
 
     def done_btn_handler(self, btn):
         self.img = self.editor.img
@@ -1040,8 +1056,9 @@ class SaveImageLayout:
         self.save_img()
 
     def save_img(self):
-        image = Image.fromarray(self.img)
-        image.save(f'Images/{self.filename.value}.jpeg', format="JPEG")
+        if self.img is not None:
+            image = Image.fromarray(self.img)
+            image.save(f'Images/{self.filename.value}.jpeg', format="JPEG")
 
 
 class FilterLayout:
@@ -1575,7 +1592,7 @@ class Layout:
         self.uploader = uploadLayout()
         self.filters = FilterLayout(self.uploader)
         self.meme_maker = MemeMakerLayout(self.uploader, self.filters)
-        self.save_img = SaveImageLayout(self.meme_maker)
+        self.save_img = SaveImageLayout(self.uploader, self.meme_maker)
 
         self.layout = widgets.Tab(children = [self.uploader.layout, self.filters.layout, self.meme_maker.layout, self.save_img.layout],
                                   titles = ['Upload Image', 'Filters', 'Meme Maker', 'Save Image'])

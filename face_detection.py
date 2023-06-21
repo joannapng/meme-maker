@@ -77,15 +77,15 @@ def get_detections(detections):
     Construct a list of all detected faces (frontal, profile, cats)
     """
     faces_frontal, faces_profile, cat_faces = detections
-
     faces = []
-    if faces_frontal != ():
+    
+    if len(faces_frontal) != 0:
         for face_frontal in faces_frontal:
             faces.append(face_frontal) 
-    if faces_profile != ():
+    if len(faces_profile) != 0:
         for face_profile in faces_profile:
             faces.append(face_profile)
-    if cat_faces != ():
+    if len(cat_faces) != 0:
         for cat_face in cat_faces:
             faces.append(cat_face)
 

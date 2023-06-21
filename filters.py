@@ -5,8 +5,6 @@ Functions for adding filters to the image
 import numpy as np
 from math import pi as pi
 from color_model import *
-import joblib
-from joblib import Parallel, delayed
 from bilateralFilter import bilateralFilterFast
 
 def adjustBrightness(factor, img):
