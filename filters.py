@@ -159,15 +159,12 @@ def bilateralFilterRow(img, new_img, gaussian, k, h, sigma_b, W, H):
         new_img[h, w, :] = sum / wsb
 
 def bilateralFilter(img, sigma_s, sigma_b):
-    dim = int(2 * pi * sigma_s)
-    k = int((dim - 1) / 2)
     new_img = np.zeros(img.shape).astype(np.float32)
-    img = img.astype(np.float32)
 
-    new_img = bilateralFilterFast(img, k, sigma_s, sigma_b)
+    new_img = bilateralFilterFast(img, sigma_s, sigma_b)
     new_img = np.asarray(new_img).astype(np.uint8)
 
-    print("bilateralFilterDone")
+    print(np.linalg.norm(new_img - img))
     return new_img
 """
 def bilateralFilter(img, sigma_s, sigma_b):

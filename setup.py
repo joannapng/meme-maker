@@ -32,7 +32,8 @@ else:
                          ["bilateralFilter.pyx"],
                          # Compiling on Windows, we have commented out the next two lines.
                          libraries=["m"],
-                         extra_compile_args = ["-ffast-math"] # This will work on gcc; other C compilers would have different flags, but this isn't required. Visual C will not recognize it.
+                         extra_compile_args = ["-ffast-math", "-fopenmp"],
+                         extra_link_args=["-fopenmp"] # This will work on gcc; other C compilers would have different flags, but this isn't required. Visual C will not recognize it.
                          )]
 
 setup(
