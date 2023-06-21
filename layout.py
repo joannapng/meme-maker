@@ -1454,6 +1454,9 @@ class FilterLayout:
             plt.show()
 
     def bilateral_sigma_s_slider_handler(self, change):
+        """
+        Handler for the sigma_s parameter of the bilater filter
+        """
         self.bilateral_img_output.clear_output(wait=True)
         self.sigma_s = change['new']
         self.tmp_img = bilateralFilter(self.new_img, self.sigma_s, self.sigma_b)
@@ -1464,6 +1467,9 @@ class FilterLayout:
             plt.show()
 
     def bilateral_sigma_b_slider_handler(self, change):
+        """
+        Handler for the sigma_b parameter of the bilater filter
+        """
         self.bilateral_img_output.clear_output(wait=True)
         self.sigma_b = change['new']
         self.tmp_img = bilateralFilter(self.new_img, self.sigma_s, self.sigma_b)

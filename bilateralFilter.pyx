@@ -8,39 +8,55 @@ from math import pi as pi
 import numpy as np
 ctypedef unsigned char uint8_t
 
-@cython.boundscheck(False)
+@cython.boundscheck(False) # do not check bounds (faster)
 @cython.wraparound(False)
+
 def bilateralFilterFast(uint8_t[:, :, :] img, uint8_t sigma_s, uint8_t sigma_b):
+    # img shape
     cdef int H = img.shape[0]
     cdef int W = img.shape[1]
     cdef int C = img.shape[2]
 
+    # pixel values
     cdef uint8_t img_r, img_g, img_b, center_r, center_g, center_b
+
+    # img after bilateral filter
     cdef float[:, :, :] img_filtered = np.zeros([H, W, 3], dtype=np.float32)
 
+    # for sigma_s, optimal size is 2 * pi * sigma_s
     cdef int dim = int(2 * pi * sigma_s)
     
+    # aim dim to be odd
     if dim % 2 == 0:
         dim += 1
 
+    # dim = 2 * k + 1 -> k = (dim - 1) / 2
     cdef int k = int((dim - 1) / 2)
 
+    # compute gaussian offline
     cdef float[:, :] gaussian = np.zeros((dim, dim), dtype = np.float32)
+
+    # norm factor for spatial gaussian
     cdef float ws = 1 / (2 * pi * sigma_s ** 2) 
+    
+    # norm factor for brightness gaussian
     cdef float wb = 1 / (sqrt(2 * pi) * sigma_b)
     cdef float wsb, wt
 
+    # iterators
     cdef int i, j, h, w, x, y
 
+    # compute gaussian (m^2 + n^2) / (2 * sigma_s^2)
     for i in range(-k, k+1):
         for j in range(-k, k+1):
-            gaussian[i+k, j+k] = (sqr(i) + sqr(j)) / (sigma_s ** 2)
+            gaussian[i+k, j+k] = (sqr(i) + sqr(j)) / (2 * sigma_s ** 2)
 
-    # The rest of the code is similar, only now we have to explicitly assign the r, g, and b channels
+    # openmp for faster computation
     with nogil, parallel():
         for h in prange(H, schedule = 'guided'):
             for w in range(W):
 
+                # center pixel in the KxK gaussian kernel
                 center_r = img[h, w, 0]
                 center_g = img[h, w, 1]
                 center_b = img[h, w, 2]
@@ -48,6 +64,8 @@ def bilateralFilterFast(uint8_t[:, :, :] img, uint8_t sigma_s, uint8_t sigma_b):
 
                 for i in range(-k, k+1):
                     for j in range(-k, k+1):
+
+                        # if out of bounds, it simulates padding the borders with the elements at the edge
                         x = min(max(0, h + i), H - 1)
                         y = min(max(0, w + j), W - 1)
 
@@ -55,12 +73,17 @@ def bilateralFilterFast(uint8_t[:, :, :] img, uint8_t sigma_s, uint8_t sigma_b):
                         img_g = img[x, y, 1]
                         img_b = img[x, y, 2]
 
+                        # ws * wb * exp(-1/2 ( (m^2+n^2)/sigma_s^2 + ( dif_r^2 + dif_g^2 + dif_b^2)/sigma_b^2))
+                        # (m^2 + n^2)/(2 * sigma_s^2) is the gaussian computed above
                         wt = ws * wb * exp(- (gaussian[i+k, j+k] + (sqr(img_r - center_r) + sqr(img_g - center_g) + sqr(img_b - center_b)) / (2 * sigma_b**2)))
                         img_filtered[h, w, 0] += img_r * wt
                         img_filtered[h, w, 1] += img_g * wt
                         img_filtered[h, w, 2] += img_b * wt
-                        wsb += wt
                         
+                        # add to factor Wsb
+                        wsb += wt
+
+                # 1e-9 add for numerical stability        
                 img_filtered[h, w, 0] /= (wsb + 1e-9)
                 img_filtered[h, w, 1] /= (wsb + 1e-9)
                 img_filtered[h, w, 2] /= (wsb + 1e-9)
