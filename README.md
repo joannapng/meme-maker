@@ -45,5 +45,19 @@ By clicking **Done**, the changes you made to this image regarding a particular 
 
 ## File structure
 
-- project.ipynb: 
-
+- project.ipynb: the main notebook file
+- bilateralFilter.pyx: a Cython Implementation to speed up bilateralFilter
+- color_model.py: transforms rgb images to hsv/hls color space and back
+- config.py: configuration file
+- eyes_detections.py: used to detect eyes and draw bounding boxes
+- face_detection.py: used to detect face and draw bounding boxes
+- filters.py: file that has the functions for the filters
+- layout.py: contains all layouts, buttons or handlers
+- meme_maker.py: contains the functions that adds the meme assets to images
+- requirements.txt
+- setup.py: function for cython compilation
+- haarcascades: Haarcascades for face recognition
+- docs: images for README.md
+- assets: transparent background assets
+- Images: where the edited images are stored
+- Original_Images: some images used for examples
