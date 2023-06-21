@@ -7,6 +7,7 @@ from math import pi as pi
 from color_model import *
 import joblib
 from joblib import Parallel, delayed
+from bilateralFilter import bilateralFilterFast
 
 def adjustBrightness(factor, img):
     """
@@ -88,6 +89,7 @@ def changeSaturation(factor, img):
     rgb = hsv_to_rgb(hsv)
     return rgb.astype(np.uint8)
 
+"""
 def computeGaussian(sigma_s):
     dim = int(2 * pi * sigma_s)
 
@@ -105,12 +107,13 @@ def computeGaussian(sigma_s):
     gaussian = gaussian * 1 / (2 * pi * sigma_s ** 2)
 
     return gaussian, k
-
+"""
+"""
 def bilateralFilterRow(img, new_img, gaussian, k, h, sigma_b, W, H):
     
     for w in range(W):
-        wsb = 0
-        sum = 0
+        wsb = 0.0
+        sum = 0.0
 
         center = img[h, w, :]
         
@@ -129,7 +132,44 @@ def bilateralFilterRow(img, new_img, gaussian, k, h, sigma_b, W, H):
                 wsb += spatial * tonal
                 
         new_img[h, w, :] = sum / wsb
+"""
 
+def bilateralFilterRow(img, new_img, gaussian, k, h, sigma_b, W, H):
+    
+    for w in range(W):
+        wsb = 0.0
+        sum = 0.0
+
+        center = img[h, w, :]
+
+        for i in range(-k, k+1, 1):
+            for j in range(-k, k+1, 1):
+                x = np.clip(h + i, 0, H-1)
+                y = np.clip(w + j, 0, W-1)
+
+                value = img[x, y, :]
+                dif = center - value
+
+                spatial = gaussian[i+k, j+k]
+                tonal = 1 / (np.sqrt(2 * pi * sigma_b)) * np.exp(- 1 / 2 * (dif/sigma_b**2))
+                
+                sum += value * spatial * tonal
+                wsb += spatial * tonal
+                
+        new_img[h, w, :] = sum / wsb
+
+def bilateralFilter(img, sigma_s, sigma_b):
+    dim = int(2 * pi * sigma_s)
+    k = int((dim - 1) / 2)
+    new_img = np.zeros(img.shape).astype(np.float32)
+    img = img.astype(np.float32)
+
+    new_img = bilateralFilterFast(img, k, sigma_s, sigma_b)
+    new_img = np.asarray(new_img).astype(np.uint8)
+
+    print("bilateralFilterDone")
+    return new_img
+"""
 def bilateralFilter(img, sigma_s, sigma_b):
     gaussian, k = computeGaussian(sigma_s)
 
@@ -139,7 +179,7 @@ def bilateralFilter(img, sigma_s, sigma_b):
     H, W, C = new_img.shape
 
     Parallel(n_jobs=8, backend = "threading")(delayed(bilateralFilterRow)(img, new_img, gaussian, k, h, sigma_b, W, H) for h in range(H))
-"""
+
 def bilateralFilter(img, sigma_s, sigma_b):
     gaussian, k = computeGaussian(sigma_s)
 
@@ -173,6 +213,3 @@ def bilateralFilter(img, sigma_s, sigma_b):
     print("bilateral done")
     return new_img
 """
-
-                    
-
