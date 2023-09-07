@@ -1,4 +1,4 @@
-# CE352 Semester Project
+# CE352 (Image Processing) Semester Project
 
 Description: Development of a portrait-editing application that can be used to create memes.
 
